@@ -1,0 +1,8 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+.tdws-tracking-item-box ul {
+    list-style: none !important;
+    margin: 10px 0 0;
+}

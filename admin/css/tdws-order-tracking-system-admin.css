@@ -1,0 +1,295 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+.tdws-form-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.tdws-form-table tr th {
+    vertical-align: middle;
+    width: 200px;
+}
+.tdws-form-table tr td {
+    width: calc(100% - 200px);
+    vertical-align: middle;
+}
+.tdws-form-table tr td p.submit {
+    padding: 0;
+    margin: 0;
+}
+.tdws-form-table tr td input[type="text"] {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+.tdws-tag-list {
+    display: none;
+    float: none;
+    clear: both;
+}
+
+.tdws-tag-list .tdws-tag-ul {
+    list-style: none;
+    margin: 8px 0 8px;
+    padding: 0;
+    font-size: 13px;
+    float: left;
+    color: #646970;
+}
+.tdws-tag-list .tdws-tag-ul li {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+}
+.tdws-tag-list .tdws-tag-ul li a {
+    line-height: 2;
+    padding: .2em;
+    text-decoration: none;
+}
+.tdws-tag-list .tdws-tag-ul li a.current {
+    color: #000;
+    font-weight: 600;
+    border: none;
+}
+.tdws-tag-list .tdws-tag-ul li a span.count {
+    color: #50575e;
+    font-weight: 400;
+}
+
+#wc-orders-filter .tdws-tag-list, #wc-orders-filter .tdws-tag-list ul {
+    display:block;
+    align-items: center;
+    margin: 0;
+}
+#wc-orders-filter .tdws-tag-list{
+    display: none;
+}
+.tdws-tag-list.active,#wc-orders-filter .tdws-tag-list.active{
+    display: block;
+}
+.tdws_tag_badge {
+    display: inline-block;
+    line-height: 2.5em;
+    border-radius: 4px;
+    border-bottom: 1px solid rgba(0, 0, 0, .05);
+    margin: -.25em 0;
+    cursor: inherit !important;
+    white-space: nowrap;
+    max-width: 100%;
+    min-width: 80px;
+    text-align: center;
+    padding: 0 10px;
+}
+.tdws-tag-list .tdws-tag-ul li::after {
+    content: ' |';
+    display: inline-block;
+    margin: 0 4px;
+    color: #646970;
+}
+.tdws-tag-list .tdws-tag-ul li:last-child::after {
+    display: none;
+}
+.tdws-tracking-info .view {
+    border-bottom: 1px solid #ccc;
+}
+.tdws-tracking-info .view:last-child {
+    border-bottom: none;
+}
+
+
+/* TDWS Tracking Meta Box */
+.tdws-hide-item,.tdws-hide{
+    display: none !important;
+}
+.tdws-order-tracking-item {
+    margin: 15px 0;   
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #ccc;
+}
+
+.tdws-order-tracking-item .tdws-field-box,.tdws-order-tracking-item .tdws-item-label{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.tdws-order-tracking-item .tdws-field-box-inner{
+    display: none;
+    padding: 15px;
+}
+.tdws-order-tracking-item .tdws-field-box-inner{
+   order: 2;
+}
+.tdws-order-tracking-item .tdws-item-label{
+    order: 1;    
+    padding: 15px;
+    cursor: pointer;
+    background: #e3eeef;
+}
+.tdws-item-label .tdws-item-label-ul {
+    display: flex;
+    margin: 0;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;    
+}
+.tdws-item-label .tdws-item-label-ul li {
+    margin: 0 5px 0 0;
+    width: calc(32% - 8px);
+}
+.tdws-item-label .tdws-item-label-ul li:last-child {
+    width: 25px;
+        text-align: right;
+    margin: 0;
+}
+.tdws-order-tracking-item .tdws-field-col {
+    width: calc(25% - 10px);
+    margin: 5px;
+}
+.tdws-show-item.active .tdws-item-label li:last-child span {
+    transform: rotate(180deg);
+}
+
+.tdws-order-tracking-item .tdws-field-col label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.tdws-order-tracking-item .tdws-field-col input, .tdws-order-tracking-item .tdws-field-col textarea, .tdws-order-tracking-item .tdws-field-col select {
+    display: block;
+    font-size: 16px;
+    font-family: inherit;
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    height: 38px;
+    width: 100%;
+    line-height: 1.3;
+}
+.woocommerce_order_items_wrapper table.woocommerce_order_items thead .tdws-tracking-header {
+    width: 30%;
+}
+
+.tdws-main-label {
+    position: relative;
+    display: inline-block;
+    width: 55px;
+    height: 28px;
+}
+.tdws-enable-field label.tdws-label {
+    font-size: 18px;
+    font-weight: bold;
+}
+.tdws-main-label input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.tdws-add-items{
+    text-align: right;
+}
+.tdws-main-label span.tdws-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.tdws-main-label span.tdws-slider::before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.tdws-main-label input:checked + .tdws-slider {
+    background-color: #2196F3;
+}
+
+.tdws-main-label input:checked + .tdws-slider::before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.tdws-main-label .tdws-slider.tdws-round {
+    border-radius: 28px;
+}
+
+.tdws-main-label .tdws-slider.tdws-round::before {
+    border-radius: 50%;
+}  
+.tdws-tracking-status+span.select2.select2-container .select2-selection,
+.tdws-tracking-status+span.select2.select2-container .select2-selection span.select2-selection__arrow {
+    height: 37px;
+}
+.tdws-tracking-status+span.select2.select2-container .select2-selection .select2-selection__rendered {
+    height: 37px;
+    line-height: 36px;
+} 
+.tdws-tracking-status+span.select2.select2-container,.tdws-product-select+span.select2-container {
+    width: 100% !important;
+}
+.tdws-remove-item-btn {
+    background: #fd9898;
+    color: #fff;
+    font-size: 13px;
+    line-height: 2.15384615;
+    min-height: 36px;
+    margin: 0;
+    padding: 0 10px;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    border: 1px solid red;
+}
+.tdws-order-tracking-item .tdws-field-col:last-child {
+    display: flex;
+    align-items: center;
+    margin-top: 25px;
+}
+.tdws-product-select+span.select2.select2-container span.select2-selection, .tdws-tracking-status+span.select2.select2-container  span.select2-selection{
+    border: 1px solid #ccc;
+}
+.tdws-show-item.tdws-order-tracking-item.active.tdws-error .tdws-field-col:first-child span.select2.select2-container span.select2-selection {
+    border-color: red;
+    background: #ffd9d9;
+}
+
+.tdws-show-item.tdws-order-tracking-item.active.tdws-error .tdws-field-col:first-child span.select2.select2-container span.select2-selection input.select2-search__field::placeholder {
+    color: red !important;
+}
+.tdws-order-tracking-item .tdws-field-col input.disabled, .tdws-order-tracking-item .tdws-field-col textarea.disabled, .tdws-order-tracking-item .tdws-field-col select.disabled {
+    background: #ccc;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .04);
+    color: rgba(44, 51, 56, .5);
+}
