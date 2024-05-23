@@ -1,7 +1,6 @@
 ## TDWS Order Tracking System
 
-**Plugin Developer:** TD Web Services  
-**Website:** tdwebservices.com
+**Plugin Developer:** [TD Web Services](http://tdwebservices.com/)
 
 This plugin provides a comprehensive order tracking system for your WordPress store, allowing you to manage single and multi-product orders efficiently.
 
