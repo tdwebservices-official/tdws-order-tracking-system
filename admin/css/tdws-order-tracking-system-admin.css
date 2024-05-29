@@ -134,7 +134,7 @@
     padding: 15px;
 }
 .tdws-order-tracking-item .tdws-field-box-inner{
-   order: 2;
+ order: 2;
 }
 .tdws-order-tracking-item .tdws-item-label{
     order: 1;    
@@ -152,15 +152,23 @@
 .tdws-item-label .tdws-item-label-ul li {
     margin: 0 5px 0 0;
     width: calc(32% - 8px);
+    word-break: break-all;
+
 }
 .tdws-item-label .tdws-item-label-ul li:last-child {
     width: 25px;
-        text-align: right;
+    text-align: right;
     margin: 0;
 }
 .tdws-order-tracking-item .tdws-field-col {
-    width: calc(25% - 10px);
+    width: calc(33% - 10px);
     margin: 5px;
+}
+.tdws-order-tracking-item .tdws-field-col.tdws-full-width {
+    width: 100%;
+}
+.tdws-tracking-info .view li {
+    word-break: break-all;
 }
 .tdws-show-item.active .tdws-item-label li:last-child span {
     transform: rotate(180deg);

@@ -239,9 +239,12 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 				/* DELETE TDWS Order Tracking */
 				$wpdb->query( $wpdb->prepare( $delete_sql_1, array_merge( $tdws_update_tracking_ids, array( $order_id ) ) ) );
 				/* DELETE TDWS Order Tracking Meta */
-				$wpdb->query( $wpdb->prepare( $delete_sql_2, $tdws_update_tracking_ids ) );	
+				$wpdb->query( $wpdb->prepare( $delete_sql_2, $tdws_update_tracking_ids, $order_id ) );	
 			}
 
+			if( is_array( $tdws_send_tracking_ids ) && count( $tdws_send_tracking_ids ) > 0 ){
+				//tdws_custom_send_mail( $to, $subject, $body, $from_email = '', $attachments = array() );
+			}
 		}
 		if( is_array( $tdws_update_tracking_ids ) && count($tdws_update_tracking_ids) == 0 ){
 
@@ -294,7 +297,7 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 		
 		$show_sku =  apply_filters( 'tdws_order_tracking_product_mail_show_sku', true );
 		$show_image =  apply_filters( 'tdws_order_tracking_product_mail_show_img', true );
-		$image_size =  apply_filters( 'tdws_order_tracking_product_mail_image_size', array( 32, 32 ) );
+		$image_size =  apply_filters( 'tdws_order_tracking_product_mail_image_size', array( 64, 64 ) );
 		$css = $html = '';
 
 		ob_start();
@@ -353,40 +356,42 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 					$tdws_carrier_link = isset($tracking_item_info['carrier_link']) ? trim( $tracking_item_info['carrier_link'] ) : '';
 					$tdws_tracking_status = isset($tracking_item_info['status']) ? trim( $tracking_item_info['status'] ) : '';
 					$tdws_date_format = (get_option('date_format')) ? get_option('date_format') : 'd/m/Y';
-					?>
-					<div class="view">
-						<ul>
-							<?php 
-							if( $tdws_tracking_no ){
-								?>
-								<li><strong><?php _e( "Tracking No", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( $tdws_tracking_no ); ?></li>
-								<?php
-							}
-							if( $tdws_carrier_name ){
-								if( $tdws_carrier_link ){
+					if( $tdws_tracking_no || $tdws_carrier_name || $tdws_tracking_status ){
+						?>
+						<div class="view">
+							<ul>
+								<?php 
+								if( $tdws_tracking_no ){
 									?>
-									<li><strong><?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?></strong> : <a href="<?php echo esc_url( $tdws_carrier_link ); ?>" target="_blank"><?php echo esc_html( $tdws_carrier_name ); ?></a></li>
-									<?php	
-								}else{
-									?>
-									<li><strong><?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( $tdws_carrier_name ); ?></li>
-									<?php	
+									<li><strong><?php _e( "Tracking No", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( $tdws_tracking_no ); ?></li>
+									<?php
 								}
-							}
-							if( !empty( trim($tdws_pickup_date) ) && $tdws_pickup_date != "0000-00-00 00:00:00" ){
-								?>
-								<li><strong><?php _e( "Pickup Date", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( date( $tdws_date_format, strtotime( $tdws_pickup_date ) ) ); ?></li>
-								<?php
-							}
-							if( $tdws_tracking_status ){
-								?>
-								<li><strong><?php _e( "Status", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( $tdws_tracking_status ); ?></li>
-								<?php
-							}
-							?>										
-						</ul>
-					</div>
-					<?php
+								if( $tdws_carrier_name ){
+									if( $tdws_carrier_link ){
+										?>
+										<li><strong><?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?></strong> : <a href="<?php echo esc_url( $tdws_carrier_link ); ?>" target="_blank"><?php echo esc_html( $tdws_carrier_name ); ?></a></li>
+										<?php	
+									}else{
+										?>
+										<li><strong><?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( $tdws_carrier_name ); ?></li>
+										<?php	
+									}
+								}
+								if( !empty( trim($tdws_pickup_date) ) && $tdws_pickup_date != "0000-00-00 00:00:00" ){
+									?>
+									<li><strong><?php _e( "Pickup Date", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( date( $tdws_date_format, strtotime( $tdws_pickup_date ) ) ); ?></li>
+									<?php
+								}
+								if( $tdws_tracking_status ){
+									?>
+									<li><strong><?php _e( "Status", 'tdws-order-tracking-system' ); ?></strong> : <?php echo esc_html( $tdws_tracking_status ); ?></li>
+									<?php
+								}
+								?>										
+							</ul>
+						</div>
+						<?php
+					}
 				}
 			}
 			?>			

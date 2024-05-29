@@ -4,7 +4,7 @@
  * The public-facing functionality of the plugin.
  *
  * @link       https://tdwebservices.com
- * @since      1.4.0
+ * @since      1.0.0
  *
  * @package    Tdws_Order_Tracking_System
  * @subpackage Tdws_Order_Tracking_System/public
@@ -25,7 +25,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * The ID of this plugin.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 * @access   private
 	 * @var      string    $plugin_name    The ID of this plugin.
 	 */
@@ -34,7 +34,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * The version of this plugin.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
@@ -43,7 +43,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * Initialize the class and set its properties.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
@@ -78,7 +78,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
 
@@ -105,7 +105,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
 
@@ -133,7 +133,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * TDWS Default Tag Save Callback function
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_default_tag_save_setting( $order_id ) {
 		$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );				
@@ -145,7 +145,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * TDWS Show Column Filter Page
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_dokan_order_inside_content_order_tags(){
 		$tage_view_list = tdws_get_order_tages( 1 );
@@ -188,7 +188,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * TDWS Add Column Order Page
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_add_extra_column_dokan_order_list(){
 		?>
@@ -199,7 +199,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * TDWS Show Column Order Page
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_show_extra_column_dokan_order_list( $order ){
 		$order_tracking_tag = get_post_meta( $order->get_id() , 'tdws_order_tracking_tag' , true );
@@ -224,7 +224,7 @@ class Tdws_Order_Tracking_System_Public {
 	/**
 	 * TDWS Add Order Tag to Edit Order Page
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_add_order_tag_to_edit_order_page( $order ){
 		$get_tag = get_post_meta( $order->get_id() , 'tdws_order_tracking_tag' , true );
@@ -338,6 +338,8 @@ class Tdws_Order_Tracking_System_Public {
 		?>
 		<div class="tdws-tracking-item">
 			<?php 
+			$tdws_table_body = '';
+			ob_start();
 			if( $tracking_item_list ){
 				foreach ( $tracking_item_list as $tracking_item_info ) {
 					$tdws_tracking_no = isset($tracking_item_info['tracking_no']) ? trim( $tracking_item_info['tracking_no'] ) : '';
@@ -346,47 +348,89 @@ class Tdws_Order_Tracking_System_Public {
 					$tdws_carrier_link = isset($tracking_item_info['carrier_link']) ? trim( $tracking_item_info['carrier_link'] ) : '';
 					$tdws_tracking_status = isset($tracking_item_info['status']) ? trim( $tracking_item_info['status'] ) : '';
 					$tdws_date_format = (get_option('date_format')) ? get_option('date_format') : 'd/m/Y';
+					if( $tdws_tracking_no || $tdws_carrier_name || $tdws_tracking_status ){
+						?>
+						<tr>
+							<td class="tdws-tracking-no" data-title="<?php _e( "Tracking No", 'tdws-order-tracking-system' ); ?>">
+								<span class="tdws-td-data">
+									<?php 
+									if( empty($tdws_tracking_no) ){
+										$tdws_tracking_no = '-';
+									}
+									echo esc_html( $tdws_tracking_no );
+									?>
+								</span>
+							</td>
+							<td class="tdws-carrier" data-title="<?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?>">
+								<span class="tdws-td-data">
+									<?php 
+									if( empty($tdws_carrier_name) ){
+										$tdws_carrier_name = '-';
+									}
+									if( $tdws_carrier_link ){
+										?>
+										<span><a href="<?php echo esc_url( $tdws_carrier_link ); ?>" target="_blank"><?php echo esc_html( $tdws_carrier_name ); ?></a>
+											<?php	
+										}else{
+											?>
+											<span><?php echo esc_html( $tdws_carrier_name ); ?></span>
+											<?php	
+										}
+										?>
+									</span>
+								</td>
+								<td class="tdws-pickup" data-title="<?php _e( "Pickup Date", 'tdws-order-tracking-system' ); ?>">
+									<span class="tdws-td-data">
+										<?php 
+										if( !empty( trim($tdws_pickup_date) ) && $tdws_pickup_date != "0000-00-00 00:00:00" ){
+											echo esc_html( date( $tdws_date_format, strtotime( $tdws_pickup_date ) ) );									
+										}else{
+											echo esc_html( '-' );	
+										}
+										?>
+									</span>
+								</td>
+								<td class="tdws-status" data-title="<?php _e( "Status", 'tdws-order-tracking-system' ); ?>">
+									<span class="tdws-td-data">
+										<?php 
+										if( empty($tdws_tracking_status) ){
+											$tdws_tracking_status = '-';
+										}
+										echo esc_html( $tdws_tracking_status );
+										?>
+									</span>
+								</td>
+
+							</tr>
+							<?php
+						}
+					}
+				}
+				$tdws_table_body = ob_get_clean();
+				if( $tdws_table_body ){
 					?>
-					<div class="tdws-tracking-item-box">
-						<ul>
+					<table width="100%" border="1" cellpadding="5" cellspacing="5">
+						<thead>
+							<tr>
+								<th class="tdws-tracking-no"><?php _e( "Tracking No", 'tdws-order-tracking-system' ); ?></th>
+								<th class="tdws-carrier"><?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?></th>
+								<th class="tdws-pickup"><?php _e( "Pickup Date", 'tdws-order-tracking-system' ); ?></th>
+								<th class="tdws-status"><?php _e( "Status", 'tdws-order-tracking-system' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
 							<?php 
-							if( $tdws_tracking_no ){
-								?>
-								<li><strong><?php _e( "Tracking No", 'tdws-order-tracking-system' ); ?></strong> : <span><?php echo esc_html( $tdws_tracking_no ); ?></span></li>
-								<?php
-							}
-							if( $tdws_carrier_name ){
-								if( $tdws_carrier_link ){
-									?>
-									<li><strong><?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?></strong> : <span><a href="<?php echo esc_url( $tdws_carrier_link ); ?>" target="_blank"><?php echo esc_html( $tdws_carrier_name ); ?></a></span></li>
-									<?php	
-								}else{
-									?>
-									<li><strong><?php _e( "Carrier Name", 'tdws-order-tracking-system' ); ?></strong> : <span><?php echo esc_html( $tdws_carrier_name ); ?></span></li>
-									<?php	
-								}
-							}
-							if( !empty( trim($tdws_pickup_date) ) && $tdws_pickup_date != "0000-00-00 00:00:00" ){
-								?>
-								<li><strong><?php _e( "Pickup Date", 'tdws-order-tracking-system' ); ?></strong> : <span><?php echo esc_html( date( $tdws_date_format, strtotime( $tdws_pickup_date ) ) ); ?></span></li>
-								<?php
-							}
-							if( $tdws_tracking_status ){
-								?>
-								<li><strong><?php _e( "Status", 'tdws-order-tracking-system' ); ?></strong> : <span><?php echo esc_html( $tdws_tracking_status ); ?></span></li>
-								<?php
-							}
-							?>		
-						</ul>
-					</div>
+							echo wp_kses_post( $tdws_table_body );
+							?>
+						</tbody>
+					</table>
 					<?php
 				}
-			}
-			?>			
-		</div>
-		<?php
-	}
+				?>			
+			</div>
+			<?php
+		}
 
-}
+	}
 
 
