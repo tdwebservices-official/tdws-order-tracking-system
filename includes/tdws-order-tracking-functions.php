@@ -206,11 +206,14 @@ function tdws_get_tracking_statuses( $type = 0 ){
 	$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );
 	$add_tracking_status = isset($tdws_ord_track_opt['add_tracking_status']) ? $tdws_ord_track_opt['add_tracking_status'] : implode( ',', $default_status_list );
 	if( $type == 1 ){
-		$add_tracking_status = explode( ',', $add_tracking_status );
+        $add_tracking_status = explode( ',', $add_tracking_status );
+		$add_tracking_status = array_map( 'trim', $add_tracking_status );
 	}	
 	$add_tracking_status = apply_filters( 'custom_tdws_get_tracking_statues', $add_tracking_status, $type );
 	if( $type == 2 ){
-		return array( 'option' => $tdws_ord_track_opt, 'tags' => explode( ',', $add_tracking_status ) );
+        $add_tracking_status = explode( ',', $add_tracking_status );
+		$add_tracking_status = array_map( 'trim', $add_tracking_status );
+		return array( 'option' => $tdws_ord_track_opt, 'tags' => $add_tracking_status );
 	}
 	return $add_tracking_status;
 }

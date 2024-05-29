@@ -18,9 +18,8 @@ if( $tdws_track_email_top ){
 	<table class="td" cellspacing="0" cellpadding="6" style="width: 100%; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;" border="1">
 		<thead>
 			<tr>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
+				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Product Tracking Information', 'woocommerce' ); ?></th>
+				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>							
 			</tr>
 		</thead>
 		<tbody>
@@ -58,6 +57,8 @@ if( $tdws_track_email_top ){
 							echo wp_kses_post( apply_filters( 'woocommerce_order_item_thumbnail', $image, $item ) );
 						}
 
+						echo "<span style='display: inline-block;vertical-align: middle;width:80%;'>";
+
 						// Product name.
 						echo wp_kses_post( apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false ) );
 
@@ -65,6 +66,10 @@ if( $tdws_track_email_top ){
 						if ( $show_sku && $sku ) {
 							echo wp_kses_post( ' (#' . $sku . ')' );
 						}
+						
+						echo "</span>";
+
+						echo "</span>";
 
 						include 'tdws-email-tracking-info.php';
 						?>
@@ -82,9 +87,7 @@ if( $tdws_track_email_top ){
 						echo wp_kses_post( apply_filters( 'woocommerce_email_order_item_quantity', $qty_display, $item ) );
 						?>
 					</td>
-					<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>; vertical-align:middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
-						<?php echo wp_kses_post( $order->get_formatted_line_subtotal( $item ) ); ?>
-					</td>
+					
 				</tr>
 				<?php 
 			}

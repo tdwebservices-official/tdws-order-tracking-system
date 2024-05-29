@@ -40,10 +40,9 @@ $tdws_active_product_labels = '';
 <div class="<?php echo $tdws_item_class; ?> tdws-order-tracking-item">
 	<div class="tdws-field-box-inner">
 		<div class="tdws-field-box">
-			<div class="tdws-field-col">
+			<div class="tdws-field-col tdws-full-width">
 				<label><?php _e( "Product", 'tdws-order-tracking-system' ); ?></label>
-				<select class="tdws-product-select tdws-input-control" multiple="multiple" name="<?php echo esc_attr( $tdws_input_name ); ?>[<?php echo esc_attr( $tk_key ); ?>][product_ids][]" old-value="<?php echo esc_attr( $tdws_product_ids ); ?>" data-placeholder="<?php esc_attr_e( 'Select Products', 'woocommerce' ); ?>">
-					<option value=""><?php _e( 'Select Products', 'tdws-order-tracking-system' ); ?></option>
+				<select class="tdws-product-select tdws-input-control" multiple="multiple" name="<?php echo esc_attr( $tdws_input_name ); ?>[<?php echo esc_attr( $tk_key ); ?>][product_ids][]" old-value="<?php echo esc_attr( $tdws_product_ids ); ?>" data-placeholder="<?php esc_attr_e( 'Select Products', 'tdws-order-tracking-system' ); ?>">
 					<?php 
 					if( isset($default_tdws_fields['product_items']) && !empty($default_tdws_fields['product_items']) ){
 						foreach ( $default_tdws_fields['product_items'] as $key => $item_value ) {

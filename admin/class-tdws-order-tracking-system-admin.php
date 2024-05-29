@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @link       https://tdwebservices.com
- * @since      1.4.0
+ * @since      1.0.0
  *
  * @package    Tdws_Order_Tracking_System
  * @subpackage Tdws_Order_Tracking_System/admin
@@ -25,7 +25,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * The ID of this plugin.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 * @access   private
 	 * @var      string    $plugin_name    The ID of this plugin.
 	 */
@@ -34,7 +34,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * The version of this plugin.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
@@ -43,7 +43,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Initialize the class and set its properties.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
@@ -85,7 +85,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
 
@@ -108,7 +108,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Register the JavaScript for the admin area.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
 
@@ -132,7 +132,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Call admin menu hook.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 
 	public function tdws_add_plugin_menu_hook(){
@@ -152,7 +152,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Save and register option setting hook.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 
 	public function tdws_register_menu_option_page_setting() {
@@ -166,7 +166,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Make option setting page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_menu_option_page() {
 
@@ -274,7 +274,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Add custom field on order edit page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_add_order_tag_field_order_edit( $order ){		
 		?>
@@ -301,7 +301,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Save custom field on order edit page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_save_order_tag_field_order_edit( $order_id, $order ){
 		
@@ -330,7 +330,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Delete hook all functions
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_delete_hook_call(){	
 		
@@ -342,7 +342,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Delete order tag meta
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_delete_order_tag_meta( $post_id ){
 		delete_post_meta( $post_id, 'tdws_order_tracking_tag' );
@@ -352,7 +352,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Add custom column on order list page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_add_order_tag_column_order_list( $columns ){	
 		
@@ -367,7 +367,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Show custom column value on order list page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_show_order_tag_column_order_list( $column_name, $post ){	
 		if( $column_name == 'order_tag' ){			
@@ -382,7 +382,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Rendor custom column value on order list page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function render_order_tag_column( $post_id ){		
 		$order_tracking_tag = get_post_meta( $post_id , 'tdws_order_tracking_tag' , true );
@@ -402,7 +402,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Show all tag filter list on order list page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_add_order_tag_filter_list( $which ) {
 		global $typenow;
@@ -413,7 +413,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Show all tag filter list on order list page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_custom_filter_order_list_table_extra_tablenav( $typenow, $which ){	
 		if ( 'shop_order' === $typenow && 'top' === $which ) {			
@@ -450,7 +450,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Apply tag filter list on order list page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_apply_order_tag_filter_list( $query ){				
 		global $pagenow, $typenow;			
@@ -467,7 +467,7 @@ class Tdws_Order_Tracking_System_Admin {
 	/**
 	 * Apply tag filter list on order list page.
 	 *
-	 * @since    1.4.0
+	 * @since    1.0.0
 	 */
 	public function tdws_apply_order_tag_filter_list_by_table( $order_query_args ){		
 		$tag_view = isset($_GET['tag_view']) ? sanitize_text_field( $_GET['tag_view'] ) : '';

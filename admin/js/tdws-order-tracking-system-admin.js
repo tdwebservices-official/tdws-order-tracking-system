@@ -36,8 +36,8 @@
 		}
 		if( jQuery('.tdws-show-item').length > 0 ){
 			jQuery('.tdws-show-item').each(function () {
-				jQuery(this).find( '.tdws-product-select' ).select2({  allowClear: true });
-				jQuery(this).find( '.tdws-tracking-status' ).select2();
+				jQuery(this).find( '.tdws-product-select' ).select2({ placeholder : jQuery(this).find( '.tdws-product-select' ).attr('data-placeholder'),  allowClear: true });
+				jQuery(this).find( '.tdws-tracking-status' ).select2({placeholder : jQuery(this).find( '.tdws-product-select' ).attr('data-placeholder')});
 				jQuery(this).find( '.tdws-pickup-date' ).datepicker({dateFormat:'yy-mm-dd'});
 			});
 		}
@@ -57,8 +57,8 @@
 		row_html = row_html.replace(/hide_tdws_meta/g, 'tdws_meta');
 		row_html = row_html.replace(/tdws_row_no/g, row_count );				
 		jQuery(this).closest('.tdws-order-tracking-wrap').find( '.tdws-order-tracking-items' ).append( '<div class="tdws-show-item tdws-order-tracking-item">'+row_html+'</div>' );
-		jQuery(this).closest('.tdws-order-tracking-wrap').find( '.tdws-order-tracking-items .tdws-show-item' ).last().find( '.tdws-product-select' ).select2({  allowClear: true });
-		jQuery(this).closest('.tdws-order-tracking-wrap').find( '.tdws-order-tracking-items .tdws-show-item' ).last().find( '.tdws-tracking-status' ).select2();
+		jQuery(this).closest('.tdws-order-tracking-wrap').find( '.tdws-order-tracking-items .tdws-show-item' ).last().find( '.tdws-product-select' ).select2({ placeholder : jQuery(this).find( '.tdws-product-select' ).attr('data-placeholder'), allowClear: true });
+		jQuery(this).closest('.tdws-order-tracking-wrap').find( '.tdws-order-tracking-items .tdws-show-item' ).last().find( '.tdws-tracking-status' ).select2({placeholder : jQuery(this).find( '.tdws-product-select' ).attr('data-placeholder')});
 		jQuery(this).closest('.tdws-order-tracking-wrap').find( '.tdws-order-tracking-items .tdws-show-item' ).last().find( '.tdws-pickup-date' ).datepicker({dateFormat:'yy-mm-dd'});
 		row_count = parseFloat(row_count) + 1;
 		jQuery(this).attr( 'data-cnt', row_count );
