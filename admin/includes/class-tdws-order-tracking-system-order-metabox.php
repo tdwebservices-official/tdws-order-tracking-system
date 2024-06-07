@@ -249,7 +249,7 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 		if( is_array( $tdws_update_tracking_ids ) && count($tdws_update_tracking_ids) == 0 ){
 
 			/* DELETE TDWS Order Tracking Meta */
-			$delete_sql_2 = "DELETE FROM FROM $tdws_table2 as t1
+			$delete_sql_2 = "DELETE FROM $tdws_table2 as t1
 			LEFT JOIN $tdws_table1 as t2 ON t1.order_tracking_id = t2.id
 			WHERE t2.order_id = %d";
 
