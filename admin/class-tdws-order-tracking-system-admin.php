@@ -61,6 +61,19 @@ class Tdws_Order_Tracking_System_Admin {
 		// Save Order Tag Field On Edit Order Page
 		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'tdws_save_order_tag_field_order_edit' ), 99, 2 );		
 
+		// Update Order Tag Field On Change On Order Status
+		add_action('woocommerce_order_status_failed', array( $this, 'tdws_update_order_tag_with_fail_status' ), 9999, 3 );	
+
+		// Update Order Tag Field When Order Status Change Failed to Processing
+		add_action('woocommerce_order_status_failed_to_processing', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );	
+		add_action('woocommerce_order_status_failed_to_on-hold', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );
+		add_action('woocommerce_order_status_failed_to_completed', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );
+
+		// Update Order Tag Field When Order Status Change Processing to Failed
+		add_action('woocommerce_order_status_pending_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );	
+		add_action('woocommerce_order_status_processing_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );	
+		add_action('woocommerce_order_status_on-hold_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );
+
 		// Add custom order tracking tag On List Order Page
 		add_filter( 'manage_edit-shop_order_columns', array( $this, 'tdws_add_order_tag_column_order_list' ), 99, 1 );
 		add_filter( 'woocommerce_shop_order_list_table_columns', array( $this, 'tdws_add_order_tag_column_order_list' ), 99, 1 );
@@ -324,6 +337,45 @@ class Tdws_Order_Tracking_System_Admin {
 			update_post_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $_POST['tdws_order_tracking_tag'] ) );
 			twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $_POST['tdws_order_tracking_tag'] ) );
 		}
+
+	}
+
+	/**
+	 * Update Order Tag When Order Status Changed.
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_update_order_tag_with_fail_status( $order_id, $that, $status_transition ){
+		
+		update_post_meta( $order_id, 'tdws_order_tracking_tag', '' );
+		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', '' );
+
+	}
+
+
+	/**
+	 * Update Order Tag When Order Status  Changed when fail to processing or on hold or pending.
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_update_order_tag_with_fail_to_process_status( $order_id, $that ){
+		
+		$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );				
+		$set_default_order_tag = (isset($tdws_ord_track_opt['set_default_order_tag']) && !empty($tdws_ord_track_opt['set_default_order_tag'])) ? $tdws_ord_track_opt['set_default_order_tag'] : 'New';
+		update_post_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $set_default_order_tag ) );
+		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $set_default_order_tag ) );
+
+	}
+
+	/**
+	 * Update Order Tag When Order Status Changed processing or on hold or pending to fail.
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_update_order_tag_with_process_to_fail_status( $order_id, $that ){
+		
+		update_post_meta( $order_id, 'tdws_order_tracking_tag', '' );
+		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', '' );
 
 	}
 
