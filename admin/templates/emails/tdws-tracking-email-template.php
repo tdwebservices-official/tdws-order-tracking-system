@@ -1,6 +1,6 @@
 <?php
 /**
- * TDWS Email Template
+ * TDWS Tracking Email Template
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -9,10 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 $WC_Emails = new WC_Emails;
 $WC_Emails->email_header( $email_heading, $email );
 
-/* translators: %s: Customer first name */ 
-if( $tdws_track_email_top ){
-	echo wp_kses_post( $tdws_track_email_top );
-}
+$tdws_table_html = '';
+ob_start();
+if( $tdws_track_email_body && str_contains( $tdws_track_email_body, '[tdws_tracking_table]' ) ){
 ?>
 <div style="margin-bottom: 40px;margin-top: 15px;">
 	<table class="td" cellspacing="0" cellpadding="6" style="width: 100%; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;" border="1">
@@ -96,8 +95,11 @@ if( $tdws_track_email_top ){
 	</table>
 </div>
 <?php 
-if( $tdws_track_email_bottom ){
-	echo wp_kses_post( $tdws_track_email_bottom );
+}
+$tdws_table_html = ob_get_clean();
+$tdws_track_email_body = str_replace( '[tdws_tracking_table]', $tdws_table_html, $tdws_track_email_body );	
+if( $tdws_track_email_body ){
+	echo wp_kses_post( $tdws_track_email_body );
 }
 if( $tdws_notes ){
 	echo wp_kses_post( $tdws_notes );

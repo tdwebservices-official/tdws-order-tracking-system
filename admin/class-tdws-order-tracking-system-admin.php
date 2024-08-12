@@ -1,15 +1,4 @@
 <?php
-
-/**
- * The admin-specific functionality of the plugin.
- *
- * @link       https://tdwebservices.com
- * @since      1.0.0
- *
- * @package    Tdws_Order_Tracking_System
- * @subpackage Tdws_Order_Tracking_System/admin
- */
-
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -55,36 +44,45 @@ class Tdws_Order_Tracking_System_Admin {
 		// Add Order Tracking Option Page Menu
 		add_action( 'admin_menu', array( $this, 'tdws_add_plugin_menu_hook' ) );
 
+		// Save tracking mail body data hook
+		add_action( "wp_ajax_".$this->plugin_name."_tracking_mail_body_save", array( $this, "tdws_plugin_tracking_mail_body_save" ) );
+		add_action( "wp_ajax_nopriv_".$this->plugin_name."_tracking_mail_body_save", array( $this, "tdws_plugin_tracking_mail_body_save" ) );
+
+		// Get tracking mail body data hook
+		add_action( "wp_ajax_tdws_tracking_get_mail_body_data", array( $this, "tdws_tracking_get_mail_body_data" ) );
+		add_action( "wp_ajax_nopriv_tdws_tracking_get_mail_body_data", array( $this, "tdws_tracking_get_mail_body_data" ) );
+
+		// This hook use for report page script enable
+		add_filter( 'woocommerce_reports_screen_ids', array( $this, 'tdws_custom_wc_reports_screen_ids' ), 11, 1 );
+
 		 // Add Order Tag Field On Edit Order Page
 		add_action( 'woocommerce_admin_order_data_after_order_details', array( $this, 'tdws_add_order_tag_field_order_edit' ), 20, 1 );
 
 		// Save Order Tag Field On Edit Order Page
-		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'tdws_save_order_tag_field_order_edit' ), 99, 2 );		
+		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'tdws_save_order_tag_field_order_edit' ), 90, 2 );	
 
 		// Update Order Tag Field On Change On Order Status
 		add_action('woocommerce_order_status_failed', array( $this, 'tdws_update_order_tag_with_fail_status' ), 9999, 3 );	
 
-		// Update Order Tag Field When Order Status Change Failed to Processing
+		// Update Order Tag Field On Change On Order Status
 		add_action('woocommerce_order_status_failed_to_processing', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );	
-		add_action('woocommerce_order_status_failed_to_on-hold', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );
-		add_action('woocommerce_order_status_failed_to_completed', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );
-
-		// Update Order Tag Field When Order Status Change Processing to Failed
+		add_action('woocommerce_order_status_failed_to_completed', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );	
+		add_action('woocommerce_order_status_failed_to_on-hold', array( $this, 'tdws_update_order_tag_with_fail_to_process_status' ), 99, 2 );	
+		add_action('woocommerce_order_status_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );	
+		add_action('woocommerce_order_status_on-hold_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );	
+		add_action('woocommerce_order_status_processing_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );
 		add_action('woocommerce_order_status_pending_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );	
-		add_action('woocommerce_order_status_processing_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );	
-		add_action('woocommerce_order_status_on-hold_to_failed', array( $this, 'tdws_update_order_tag_with_process_to_fail_status' ), 99, 2 );
 
 		// Add custom order tracking tag On List Order Page
 		add_filter( 'manage_edit-shop_order_columns', array( $this, 'tdws_add_order_tag_column_order_list' ), 99, 1 );
 		add_filter( 'woocommerce_shop_order_list_table_columns', array( $this, 'tdws_add_order_tag_column_order_list' ), 99, 1 );
-
-		// Add custom order tracking tag On List Order Page
 		add_action('manage_shop_order_posts_custom_column', array( $this, 'tdws_show_order_tag_column_order_list' ), 99, 2 );
 		add_action( 'woocommerce_shop_order_list_table_custom_column', array( $this, 'tdws_show_order_tag_column_order_list' ), 99, 2 );
 
 		// add Order Filter HTML On List Order Page
 		add_action( 'manage_posts_extra_tablenav', array( $this, 'tdws_add_order_tag_filter_list' ), 99, 1 );
 		add_action( 'woocommerce_order_list_table_extra_tablenav', array( $this, 'tdws_custom_filter_order_list_table_extra_tablenav' ), 99, 2 );
+		add_action( 'woocommerce_order_list_table_extra_tablenav', array( $this, 'tdws_custom_action_order_list_table_extra_tablenav' ), 98, 2 );
 
 		// add Order FilterHook to apply the filter
 		add_action( 'pre_get_posts',  array( $this, 'tdws_apply_order_tag_filter_list' ), 99, 1 );
@@ -92,6 +90,12 @@ class Tdws_Order_Tracking_System_Admin {
 
 		// Delete tdws tag data on init
 		add_action( 'admin_init', array( $this, 'tdws_delete_hook_call' ) );
+
+		// Hide Specific Order Item Meta
+		add_action( 'woocommerce_hidden_order_itemmeta', array( $this, 'tdws_hidden_order_itemmeta' ), 99, 1 );
+
+		// This hook fire when update a plugin
+		add_action( 'upgrader_process_complete', array( $this, 'tdws_after_upgrade_function_load' ), 99, 2 );
 		
 	}
 
@@ -114,7 +118,18 @@ class Tdws_Order_Tracking_System_Admin {
 		 * class.
 		 */
 
+		$tdws_screen    = get_current_screen();
+		$tdws_screen_id = isset($tdws_screen->id) ? $tdws_screen->id : '';
+
+		if ( $tdws_screen_id == 'tdws_page_tdws-order-tracking-report' ) {
+			wp_enqueue_style( 'woocommerce_admin_styles' );
+			wp_enqueue_style( 'jquery-ui-style' );
+			wp_enqueue_style( 'wp-color-picker' );
+			wp_enqueue_style( 'woocommerce_admin_print_reports_styles' );
+		}
+		
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/tdws-order-tracking-system-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name.'-tdws-popup', plugin_dir_url( __FILE__ ) . 'css/tdws-popup.css', array(), $this->version, 'all' );
 
 	}
 
@@ -136,9 +151,20 @@ class Tdws_Order_Tracking_System_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
+		
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/tdws-order-tracking-system-admin.js', array( 'jquery' ), $this->version, false );
+		wp_localize_script( $this->plugin_name, 'tdwsAjax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce('tdws_form_save') ) );       
 
+	}	
+
+	/**
+	 * This hook define a report page screen id add
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_custom_wc_reports_screen_ids( $screen_id_list ){
+		$screen_id_list[] = 'tdws_page_tdws-order-tracking-report';
+		return $screen_id_list;
 	}
 
 
@@ -147,17 +173,17 @@ class Tdws_Order_Tracking_System_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-
 	public function tdws_add_plugin_menu_hook(){
 
 
-		//create new top-level menu
 		add_menu_page( __( 'TDWS', 'tdws-order-tracking-system' ), __( 'TDWS', 'tdws-order-tracking-system' ), 'tdws_plugins', 'tdws_order_tracking', array( $this, 'tdws_menu_option_page' ), 'dashicons-admin-generic', 25 );
 
-		//create new sub-level menu
 		add_submenu_page( 'tdws_order_tracking', __( 'Order Tracking System', 'tdws-order-tracking-system' ), __( 'Order Tracking System', 'tdws-order-tracking-system' ), 'administrator', 'tdws-order-tracking-system', array( $this, 'tdws_menu_option_page' ) );
 
-		//call register plugin settings 
+		add_submenu_page( 'tdws_order_tracking', __( '17TRACK API Setting', 'tdws-order-tracking-system' ), __( '17TRACK API Setting', 'tdws-order-tracking-system' ), 'administrator', '17track-api-setting', array( $this, 'tdws_17track_api_setting_page' ) );
+
+		add_submenu_page( 'tdws_order_tracking', __( 'Order Tracking Report', 'tdws-order-tracking-system' ), __( 'Order Tracking Report', 'tdws-order-tracking-system' ), 'administrator', 'tdws-order-tracking-report', array( $this, 'tdws_17track_report_setting_page' ) );
+		
 		add_action( 'admin_init', array( $this, 'tdws_register_menu_option_page_setting' ) );
 
 	}
@@ -173,6 +199,7 @@ class Tdws_Order_Tracking_System_Admin {
 		//register plugin settings
 		register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_opt' );
 		register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_mail' );
+		register_setting( 'tdws-order-tracking-setting', 'tdws_17track_opt' );
 
 	}
 
@@ -184,7 +211,6 @@ class Tdws_Order_Tracking_System_Admin {
 	public function tdws_menu_option_page() {
 
 		$add_order_tags = tdws_get_order_tages();
-		$add_tracking_statuses = tdws_get_tracking_statuses();
 		$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );		
 		$tdws_ord_track_mail = get_option( 'tdws_ord_track_mail' );		
 		$default_tag_name = apply_filters( 'set_default_tdws_tag_name', 'New' );
@@ -205,84 +231,336 @@ class Tdws_Order_Tracking_System_Admin {
 			<form method="post" action="options.php">
 				<?php settings_fields( 'tdws-order-tracking-setting' ); ?>
 				<?php do_settings_sections( 'tdws-order-tracking-setting' ); ?>
-				<table class="tdws-form-table" width="100%" border="1" cellpadding="10" cellspacing="10">
-					<tbody>						
-						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Set Default Order Tag', 'tdws-order-tracking-system' ); ?></th>
-							<td><input type="text" placeholder="<?php esc_html_e( 'Please Set Default Order Tag', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[set_default_order_tag]" value="<?php echo esc_attr( $set_default_order_tag ); ?>" /></td>
-						</tr>						
-						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Add Order Tags', 'tdws-order-tracking-system' ); ?></th>
-							<td><input type="text" placeholder="<?php esc_html_e( 'Please Add Order Tags', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[add_order_tags]" value="<?php echo esc_attr( $add_order_tags ); ?>" /></td>
-						</tr>
-						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Add Tracking Status', 'tdws-order-tracking-system' ); ?></th>
-							<td><input type="text" placeholder="<?php esc_html_e( 'Please Add Tracking Status', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[add_tracking_status]" value="<?php echo esc_attr( $add_tracking_statuses ); ?>" /></td>
-						</tr>
-						<tr valign="top">
-							<th scope="row">
-								<?php esc_html_e( 'Order Tag Colours', 'tdws-order-tracking-system' ); ?>
-								<h6>( <?php esc_html_e( 'Please add colour which you have enter tag also show default #000', 'tdws-order-tracking-system' ); ?> )</h6>
-							</th>
-							<td><input type="text" placeholder="<?php esc_html_e( 'Please Order Tag Colours', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[order_tag_colour]" value="<?php echo esc_attr( $order_tag_colour ); ?>" /></td>
-						</tr>	
-						<tr valign="top">
-							<th scope="row">
-								<?php esc_html_e( 'Tag Text Colour', 'tdws-order-tracking-system' ); ?>
-								<h6>( <?php esc_html_e( 'Please add colour which you have enter tag text show default #fff', 'tdws-order-tracking-system' ); ?> )</h6>
-							</th>
-							<td><input type="text" placeholder="<?php esc_html_e( 'Please Tag Text Colour', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[tag_text_colour]" value="<?php echo esc_attr( $tag_text_colour ); ?>" /></td>
-						</tr>
-						<tr valign="top">
-							<th scope="row">
-								<?php esc_html_e( 'Order Tracking Subject', 'tdws-order-tracking-system' ); ?>
-								<h6>( <?php esc_html_e( 'You can pass order id in subject using [order_id]' ); ?> )</h6>
-							</th>
-							<td><input type="text" placeholder="<?php esc_html_e( 'Please Order Tracking Subject', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_mail[subject]" value="<?php echo esc_attr( $tdws_track_subject ); ?>" /></td>
-						</tr>
-						<tr valign="top">
-							<th scope="row">
-								<?php esc_html_e( 'Order Tracking Email Heading', 'tdws-order-tracking-system' ); ?>
-								<h6>( <?php esc_html_e( 'You can pass order id in email heading using [order_id]' ); ?> )</h6>
-							</th>
-							<td><input type="text" placeholder="<?php esc_html_e( 'Please Order Tracking Email Heading', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_mail[email_heading]" value="<?php echo esc_attr( $tdws_track_email_heading ); ?>" /></td>
-						</tr>
-						<tr valign="top">
-							<th scope="row">
-								<?php esc_html_e( 'Order Tracking Email Before Items HTML', 'tdws-order-tracking-system' ); ?>
-								<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]' ); ?> )</h6>
-							</th>
-							<td>
-								<?php 																
-								wp_editor( $tdws_track_email_top, 'tdws_ord_track_mail_email_top', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_track_mail[email_top_html]', 'wpautop' => false ) );
-								?>
-							</td>
-						</tr>
-						<tr valign="top">
-							<th scope="row">
-								<?php esc_html_e( 'Order Tracking Email After Items HTML', 'tdws-order-tracking-system' ); ?>
-								<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]' ); ?> )</h6>
-							</th>
-							<td>
-								<?php 																
-								wp_editor( $tdws_track_email_bottom, 'tdws_ord_track_mail_email_bottom', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_track_mail[email_bottom_html]', 'wpautop' => false ) );
-								?>
-							</td>
-						</tr>	
+				<div class="tdws-form-section">
+					<table class="tdws-form-table" width="100%" border="1" cellpadding="10" cellspacing="10">
+						<tbody>						
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Set Default Order Tag', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Set Default Order Tag', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[set_default_order_tag]" value="<?php echo esc_attr( $set_default_order_tag ); ?>" /></td>
+							</tr>						
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Add Order Tags', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Add Order Tags', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[add_order_tags]" value="<?php echo esc_attr( $add_order_tags ); ?>" /></td>
+							</tr>
+							
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Order Tag Colours', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please add colour which you have enter tag also show default #000', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Order Tag Colours', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[order_tag_colour]" value="<?php echo esc_attr( $order_tag_colour ); ?>" /></td>
+							</tr>	
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Tag Text Colour', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please add colour which you have enter tag text show default #fff', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Tag Text Colour', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[tag_text_colour]" value="<?php echo esc_attr( $tag_text_colour ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Order Tracking Subject', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass order id in subject using [order_id]' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Order Tracking Subject', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_mail[subject]" value="<?php echo esc_attr( $tdws_track_subject ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Order Tracking Email Heading', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass order id in email heading using [order_id]' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Order Tracking Email Heading', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_mail[email_heading]" value="<?php echo esc_attr( $tdws_track_email_heading ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Order Tracking Email Before Items HTML', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]' ); ?> )</h6>
+								</th>
+								<td>
+									<?php 																
+									wp_editor( $tdws_track_email_top, 'tdws_ord_track_mail_email_top', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_track_mail[email_top_html]', 'wpautop' => false ) );
+									?>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Order Tracking Email After Items HTML', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]' ); ?> )</h6>
+								</th>
+								<td>
+									<?php 																
+									wp_editor( $tdws_track_email_bottom, 'tdws_ord_track_mail_email_bottom', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_track_mail[email_bottom_html]', 'wpautop' => false ) );
+									?>
+								</td>
+							</tr>	
 
-					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="2">
-								<?php submit_button(); ?>
-							</td>
-						</tr>
-					</tfoot>
-				</table>				
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="2">
+									<?php submit_button(); ?>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
 			</form>
 		</div>
 		<?php 
 	}	
+
+	/**
+	 * Make 17Track API setting page.
+	 *
+	 * @since    1.4.0
+	 */
+	public function tdws_17track_api_setting_page() {
+		$tdws_17track_opt = get_option( 'tdws_17track_opt' );
+		$tdws_tracking_cron_batch_date = get_option( 'tdws_tracking_cron_batch_date' );
+		$tdws_tracking_cron_batch_read_date = get_option( 'tdws_tracking_cron_batch_read_date' );
+		$change_key = isset($tdws_17track_opt['change_key']) ? $tdws_17track_opt['change_key'] : '';
+		$mail_tracking_status = isset($tdws_17track_opt['mail_tracking_status']) ? $tdws_17track_opt['mail_tracking_status'] : array();
+		$tdws_17track_mail_status = tdws_17track_mail_tracking_status();	
+		$tdws_date_format = (get_option('date_format')) ? get_option('date_format') : 'd/m/Y';			
+		$tdws_time_format = (get_option('time_format')) ? get_option('time_format') : 'H:i:s';			
+		?>
+
+		<div class="wrap tdws-form-wrap">
+			<h1><?php esc_html_e( '17TRACK API Setting', 'tdws-order-tracking-system' ); ?></h1>
+			<form method="post" action="options.php">
+				<?php settings_fields( 'tdws-order-tracking-setting' ); ?>
+				<?php do_settings_sections( 'tdws-order-tracking-setting' ); ?>
+				<div class="tdws-form-section">
+					<table class="tdws-form-table" width="100%" border="1" cellpadding="10" cellspacing="10">
+						<tbody>						
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Change Key', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Change Key', 'tdws-order-tracking-system' ); ?>" name="tdws_17track_opt[change_key]" value="<?php echo esc_attr( $change_key ); ?>" /></td>
+							</tr>	
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( '17Track Tracking Status', 'tdws-order-tracking-system' ); ?></th>
+								<td>
+									<?php 
+									if( $tdws_17track_mail_status ){
+										foreach ( $tdws_17track_mail_status as $t_key => $t_value ) {
+											?>
+											<label class="tdws-checkbox-label">
+												<span class="tdws-checkbox-box">
+													<input type="checkbox" name="tdws_17track_opt[mail_tracking_status][]" <?php checked( in_array($t_key, $mail_tracking_status), 1 ); ?> value="<?php echo esc_attr( $t_key ); ?>" />
+													<span class="tdws-checkbox-info"><?php echo $t_value; ?></span>
+													<span class="tdws-checkbox-mark"></span>
+												</span>
+												<span class="tdws-mail-button <?php echo (in_array($t_key, $mail_tracking_status)) ? "tdws-active" : ""; ?>">
+													<button type="button" class="tdws-set-mail-body tdws-loader-button button button" data-key="<?php echo esc_attr( $t_key ); ?>"><span class="tdws-button-label"><?php echo _e( 'Set Mail Body', 'tdws-order-tracking-system' ); ?></span><span class="tdws-loader"><img src="<?php echo esc_url( plugin_dir_url( __DIR__ ).'/admin/images/loader.gif' ); ?>"/></span></button>
+												</span>
+											</label>
+											<?php
+										}
+									}
+									?>
+								</td>
+							</tr>	
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Re-Tracking Mail Setting', 'tdws-order-tracking-system' ); ?></th>
+								<td>
+									<label class="tdws-checkbox-label">									
+										<span class="tdws-mail-button tdws-active">
+											<button type="button" class="tdws-set-mail-body tdws-loader-button button button" data-key="re_tracking"><span class="tdws-button-label"><?php echo _e( 'Set Mail Body', 'tdws-order-tracking-system' ); ?></span><span class="tdws-loader"><img src="<?php echo esc_url( plugin_dir_url( __DIR__ ).'/admin/images/loader.gif' ); ?>"/></span></button>
+										</span>
+									</label>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Stop Tracking Mail Setting', 'tdws-order-tracking-system' ); ?></th>
+								<td>
+									<label class="tdws-checkbox-label">									
+										<span class="tdws-mail-button tdws-active">
+											<button type="button" class="tdws-set-mail-body tdws-loader-button button button" data-key="stop_tracking"><span class="tdws-button-label"><?php echo _e( 'Set Mail Body', 'tdws-order-tracking-system' ); ?></span><span class="tdws-loader"><img src="<?php echo esc_url( plugin_dir_url( __DIR__ ).'/admin/images/loader.gif' ); ?>"/></span></button>
+										</span>
+									</label>
+								</td>
+							</tr>	
+							<tr valign="top" class="tdws-subject-tr" >
+								<th scope="row">
+									<?php esc_html_e( 'Use This Cron Tracking Notification Batch ( Every 30 Min )', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please Set This Cron To Your Server For Every 30 Minute Update Tracking Notification Batch', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<input type="text" class="tdws-full-width" readonly value="<?php echo site_url('wp-admin/admin-ajax.php?action=tdws_push_17track_api_cron'); ?>" />
+									<?php 
+									if( $tdws_tracking_cron_batch_date ){
+										?>
+										<h3 class="tdws-cron-info"><?php esc_html_e( 'Last Cron Run Date & Time :', 'tdws-order-tracking-system' ); ?> <?php echo esc_html( date( $tdws_date_format.' '.$tdws_time_format, strtotime( $tdws_tracking_cron_batch_date ) ) ); ?></h3>
+
+										<?php	
+									}
+									?>
+								</td>
+							</tr>	
+							<tr valign="top" class="tdws-subject-tr" >
+								<th scope="row">
+									<?php esc_html_e( 'Use This Cron Tracking Notification ( Every 3 Min )', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please Set This Cron To Your Server For Every 3 Minute Update Tracking Notification', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<input type="text" class="tdws-full-width" readonly value="<?php echo site_url('wp-admin/admin-ajax.php?action=tdws_push_17track_api_single_cron'); ?>" />
+									<?php 
+									if( $tdws_tracking_cron_batch_read_date ){
+										?>
+										<h3 class="tdws-cron-info"><?php esc_html_e( 'Last Cron Run Date & Time :', 'tdws-order-tracking-system' ); ?> <?php echo esc_html( date( $tdws_date_format.' '.$tdws_time_format, strtotime( $tdws_tracking_cron_batch_read_date ) ) ); ?></h3>
+										
+										<?php	
+									}
+									?>
+								</td>
+							</tr>		
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="2">
+									<?php submit_button(); ?>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>			
+			</form>
+
+			<div id="tdws-tracking-status-popup" class="tracking-mail-status-popup tdws-popup">
+
+				<div class="tdws-popup-wrapper">
+					<button title="Close (Esc)" type="button" class="tdws-close">×</button>
+					<form method="post" class="tdws-tracking-status-form">
+						<div class="tdws-form-section">
+							<table class="tdws-form-table" width="100%" border="1" cellpadding="10" cellspacing="10">
+								<tbody>						
+									<tr valign="top" class="tdws-subject-tr" >
+										<th scope="row">
+											<?php esc_html_e( 'Subject', 'tdws-order-tracking-system' ); ?>
+											<h6>( <?php esc_html_e( 'You can pass order id in subject using [order_id]' ); ?> )</h6>
+										</th>
+										<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Subject', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_mail_body[subject]" value="" /></td>
+									</tr>
+									<tr valign="top" class="tdws-email-heading-tr">
+										<th scope="row">
+											<?php esc_html_e( 'Email Heading', 'tdws-order-tracking-system' ); ?>
+											<h6>( <?php esc_html_e( 'You can pass order id in email heading using [order_id]' ); ?> )</h6>
+										</th>
+										<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Email Heading', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_mail_body[email_heading]" value="" /></td>
+									</tr>
+									<tr valign="top" class="tdws-email-item-body">
+										<th scope="row">
+											<?php esc_html_e( 'Email Body Items HTML', 'tdws-order-tracking-system' ); ?>
+											<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email] [tdws_tracking_table]' ); ?> )</h6>
+										</th>
+										<td>
+											<?php 																
+											wp_editor( "", 'tdws_ord_track_mail_email_body', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_track_mail_body[email_body]', 'textarea_rows' => 20, 'wpautop' => false ) );
+											?>
+										</td>
+									</tr>									
+								</tbody>
+								<tfoot>
+									<tr>
+										<td colspan="2">
+											<?php wp_nonce_field( $this->plugin_name.'-MailBodySave', 'formType' ); ?>
+											<input type="hidden" name="option_type" value="">
+											<input type="hidden" name="action" value="<?php echo esc_attr( $this->plugin_name ); ?>_tracking_mail_body_save">
+											<button type="submit" class="tdws-loader-button button button-primary"><span class="tdws-button-label"><?php echo _e( 'Save Changes', 'tdws-order-tracking-system' ); ?></span><span class="tdws-loader"><img src="<?php echo esc_url( plugin_dir_url( __DIR__ ).'/admin/images/loader.gif' ); ?>"/></span></button>
+											<p class="tdws-success-msg"><?php echo _e( 'Mail body data saved successfully...', 'tdws-order-tracking-system' ); ?></p>
+											<p class="tdws-error-msg"><?php echo _e( 'Something Went Wrong, Try Again...', 'tdws-order-tracking-system' ); ?></p>
+										</td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>	
+					</form>		
+				</div>
+				
+			</div>
+		</div>
+		<?php 
+	}
+
+	/**
+	 * Show 17Track API Report page data with chart.
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_17track_report_setting_page() {
+		?>
+		<div class="wrap tdws-form-wrap">
+			<h1><?php esc_html_e( '17TRACK API Report', 'tdws-order-tracking-system' ); ?></h1>
+
+			<?php
+
+			include_once dirname( __FILE__ ) . '/includes/class-tdws-tracking-reports.php';
+
+			$sales_by_date                 = new Tdws_Order_Tracking_Report();
+			$sales_by_date->start_date     = strtotime( gmdate( 'Y-m-01', current_time( 'timestamp' ) ) );
+			$sales_by_date->end_date       = strtotime( gmdate( 'Y-m-d', current_time( 'timestamp' ) ) );
+			$sales_by_date->chart_groupby  = 'day';
+			$sales_by_date->group_by_query = 'YEAR(posts.post_date), MONTH(posts.post_date), DAY(posts.post_date)';
+
+			$sales_by_date->output_report();
+			?>
+		</div>
+		<?php 
+	}	
+
+	/**
+	 * Save tracking mail status body data.
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_plugin_tracking_mail_body_save(){
+		$data_arr = $value_arr = array();					
+		check_ajax_referer( 'tdws_form_save', 'ajax_nonce' );					
+		/*
+		* In $_POST['formdata'] We have store data as array format
+		* We also sanitize data using tdws_array_data_sanitize function
+		*/
+		$formdata = isset($_POST['formdata']) ? $_POST['formdata'] : '';		
+		parse_str( $formdata, $data_arr );	
+
+		$data_arr = array_map( 'tdws_array_data_sanitize', $data_arr );
+		
+		if ( isset( $data_arr['formType'] ) && wp_verify_nonce( $data_arr['formType'], $this->plugin_name.'-MailBodySave' ) ) {			
+			$option_name = 'tdws_'.$data_arr['option_type'].'_mail_obj';
+			update_option( $option_name, $data_arr['tdws_ord_track_mail_body'] );			
+		}		
+		wp_send_json( array( 'type' => 'success' ) );
+	}
+
+	/**
+	 * Get tracking mail status body data.
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_tracking_get_mail_body_data(){
+		$data_arr = $value_arr = array();		
+		$success = false;		
+		check_ajax_referer( 'tdws_form_save', 'ajax_nonce' );					
+		$option_key = isset($_POST['option_key']) ? sanitize_text_field( $_POST['option_key'] ) : "";
+		$default_mailObj = array(
+			'subject' => '',
+			'email_heading' => '',
+			'email_body' => ''
+		);
+		$tdws_17track_mail_info = tdws_17track_mail_tracking_status_mail_info();
+		if( isset($tdws_17track_mail_info[$option_key]) ){
+			$default_mailObj = $tdws_17track_mail_info[$option_key];
+		}
+		if( $option_key ){
+			$option_name = 'tdws_'.$_POST['option_key'].'_mail_obj';
+			$optionData = get_option( $option_name );	
+			if( $optionData ){
+				$default_mailObj = $optionData;
+			}
+		}		
+		wp_send_json( array( 'type' => 'success', 'data' => $default_mailObj ) );
+	}
+
 
 	/**
 	 * Add custom field on order edit page.
@@ -312,6 +590,44 @@ class Tdws_Order_Tracking_System_Admin {
 	}
 
 	/**
+	 * Update Order Tag When Order Status Changed.
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_update_order_tag_with_fail_status( $order_id, $that, $status_transition ){
+		
+		update_post_meta( $order_id, 'tdws_order_tracking_tag', '' );
+		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', '' );
+
+	}
+
+	/**
+	 * Update Order Tag When Order Status  Changed when fail to processing or on hold.
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_update_order_tag_with_fail_to_process_status( $order_id, $that ){
+		
+		$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );				
+		$set_default_order_tag = (isset($tdws_ord_track_opt['set_default_order_tag']) && !empty($tdws_ord_track_opt['set_default_order_tag'])) ? $tdws_ord_track_opt['set_default_order_tag'] : 'New';
+		update_post_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $set_default_order_tag ) );
+		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $set_default_order_tag ) );
+
+	}
+
+	/**
+	 * Update Order Tag When Order Status Changed processing or on hold to fail.
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_update_order_tag_with_process_to_fail_status( $order_id, $that ){
+		
+		update_post_meta( $order_id, 'tdws_order_tracking_tag', '' );
+		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', '' );
+
+	}
+
+	/**
 	 * Save custom field on order edit page.
 	 *
 	 * @since    1.0.0
@@ -334,48 +650,29 @@ class Tdws_Order_Tracking_System_Admin {
 		}
 
 		if( isset($_POST['tdws_order_tracking_tag']) ){
-			update_post_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $_POST['tdws_order_tracking_tag'] ) );
-			twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $_POST['tdws_order_tracking_tag'] ) );
+			$tdws_order_tracking_tag = sanitize_text_field( $_POST['tdws_order_tracking_tag'] );
+			update_post_meta( $order_id, 'tdws_order_tracking_tag', $tdws_order_tracking_tag );
+			twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', $tdws_order_tracking_tag );
 		}
 
-	}
+		if( isset($_POST['tdws_tracking_shipped_id']) ){
+			$tdws_tracking_shipped = isset($_POST['tdws_tracking_shipped']) ? $_POST['tdws_tracking_shipped'] : array();		
+			$tdws_tracking_shipped = array_map( 'tdws_array_data_sanitize', $tdws_tracking_shipped );
 
-	/**
-	 * Update Order Tag When Order Status Changed.
-	 *
-	 * @since    1.0.0
-	 */
-	public function tdws_update_order_tag_with_fail_status( $order_id, $that, $status_transition ){
-		
-		update_post_meta( $order_id, 'tdws_order_tracking_tag', '' );
-		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', '' );
+			$tdws_tracking_shipped_ids = isset($_POST['tdws_tracking_shipped_id']) ? $_POST['tdws_tracking_shipped_id'] : array();		
+			$tdws_tracking_shipped_ids = array_map( 'tdws_array_data_sanitize', $tdws_tracking_shipped_ids );
 
-	}
+			if( $tdws_tracking_shipped_ids ){
+				foreach( $tdws_tracking_shipped_ids as $tdws_track_shipped_id ){
+					$tdws_ship_check = 'no';
+					if( isset($tdws_tracking_shipped[$tdws_track_shipped_id]) && !empty($tdws_tracking_shipped[$tdws_track_shipped_id]) ){
+						$tdws_ship_check = 'yes';
+					}
+					wc_update_order_item_meta( $tdws_track_shipped_id, '_tdws_tracking_shipped', $tdws_ship_check );
+				}
+			}			
 
-
-	/**
-	 * Update Order Tag When Order Status  Changed when fail to processing or on hold or pending.
-	 *
-	 * @since    1.0.0
-	 */
-	public function tdws_update_order_tag_with_fail_to_process_status( $order_id, $that ){
-		
-		$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );				
-		$set_default_order_tag = (isset($tdws_ord_track_opt['set_default_order_tag']) && !empty($tdws_ord_track_opt['set_default_order_tag'])) ? $tdws_ord_track_opt['set_default_order_tag'] : 'New';
-		update_post_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $set_default_order_tag ) );
-		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', sanitize_text_field( $set_default_order_tag ) );
-
-	}
-
-	/**
-	 * Update Order Tag When Order Status Changed processing or on hold or pending to fail.
-	 *
-	 * @since    1.0.0
-	 */
-	public function tdws_update_order_tag_with_process_to_fail_status( $order_id, $that ){
-		
-		update_post_meta( $order_id, 'tdws_order_tracking_tag', '' );
-		twds_update_order_meta( $order_id, 'tdws_order_tracking_tag', '' );
+		}
 
 	}
 
@@ -449,8 +746,6 @@ class Tdws_Order_Tracking_System_Admin {
 		} 
 	}
 
-	
-
 	/**
 	 * Show all tag filter list on order list page.
 	 *
@@ -458,8 +753,57 @@ class Tdws_Order_Tracking_System_Admin {
 	 */
 	public function tdws_add_order_tag_filter_list( $which ) {
 		global $typenow;
-		
+		$this->tdws_custom_action_order_list_table_extra_tablenav( $typenow, $which );
 		$this->tdws_custom_filter_order_list_table_extra_tablenav( $typenow, $which );
+	}
+
+	/**
+	 * Add Custom Action For all tags on order list page.
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_custom_action_order_list_table_extra_tablenav( $typenow, $which ){	
+		if ( 'shop_order' === $typenow && 'top' === $which ) {			
+			$tage_view_list = tdws_get_order_tages( 1 );
+			if( empty( $tage_view_list ) ){
+				$tage_view_list = array();
+			}			
+			
+			echo '<div class="tdws-tag-list-action">';
+
+			echo '<label for="bulk-tag-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' .
+			/* translators: Hidden accessibility text. */
+			__( 'Select bulk tag action' ) .
+			'</label>';
+			echo '<select name="tdws_tag_action" id="bulk-tag-action-selector-' . esc_attr( $which ) . "\">\n";
+			echo '<option value="-1">' . __( 'Bulk tag actions' ) . "</option>\n";
+			if( $tage_view_list ){
+				foreach ( $tage_view_list as $key => $value ) {
+					if ( is_array( $value ) ) {
+						echo "\t" . '<optgroup label="' . esc_attr( $value ) . '">' . "\n";
+
+						foreach ( $value as $name => $title ) {
+							$class = ( 'edit' === $name ) ? ' class="hide-if-no-js"' : '';
+
+							echo "\t\t" . '<option value="' . esc_attr( $name ) . '"' . $class . '>' . $title . "</option>\n";
+						}
+						echo "\t" . "</optgroup>\n";
+					} else {
+						$class = ( 'edit' === $key ) ? ' class="hide-if-no-js"' : '';
+
+						echo "\t" . '<option value="' . esc_attr( $value ) . '"' . $class . '>' . $value . "</option>\n";
+					}
+				}
+			}
+			echo "</select>\n";
+
+			wp_nonce_field( 'tdwsBulkTagUpdate', 'tdwsBulkTagAction' );
+
+			submit_button( __( 'Apply' ), 'action', '', false, array( 'id' => "doaction_tdws_tag" ) );
+			echo "\n";
+
+			echo "</div>";	
+		}			
 	}
 
 	/**
@@ -499,6 +843,7 @@ class Tdws_Order_Tracking_System_Admin {
 		}			
 	}
 
+
 	/**
 	 * Apply tag filter list on order list page.
 	 *
@@ -536,5 +881,37 @@ class Tdws_Order_Tracking_System_Admin {
 		return $order_query_args;
 	}
 
+	/**
+	 * Hide Order Item Meta
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_hidden_order_itemmeta( $order_items  ){		
+		$order_items[] = '_tdws_tracking_shipped';		
+		return $order_items;
+	}
 
+
+	/**
+	 * This hook fire when plugin updated and add a new column tracking_status
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_after_upgrade_function_load( $upgrader_object, $options ){
+		
+		$current_plugin_path_name = plugin_basename( __FILE__ );
+		if ($options['action'] == 'update' && $options['type'] == 'plugin' ) {
+			foreach($options['plugins'] as $each_plugin) {
+				if ( $each_plugin == $current_plugin_path_name ) {
+
+					/* Version 1.3.0 */
+					tdws_add_column_tracking_statusDB();
+
+				}
+			}
+		}
+
+	}
+
+	
 }

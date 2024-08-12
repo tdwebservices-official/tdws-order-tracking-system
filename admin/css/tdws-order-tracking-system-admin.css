@@ -1,16 +1,47 @@
 /**
- * All of the CSS for your admin-specific functionality should be
- * included in this file.
- */
-
+* All of the CSS for your admin-specific functionality should be
+* included in this file.
+*/
+.tdws-form-wrap {
+    margin-top: 20px;
+}
+.tdws-form-wrap h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #001e1d;
+    margin: 0;
+    padding: 0;
+}
+.tdws-form-section {
+    background-color: #fff;
+    margin-top: 20px;
+}
+.tdws-form-table tr {
+    border-bottom: 1px solid #eceff5;
+}
+.tdws-form-table td, .tdws-form-table th {
+/* border: 1px solid rgba(0, 0, 0, .08); */
+border: 0;
+padding: 20px 20px;
+}
+.tdws-form-table tr th h6 {
+    margin: 5px 0 0;
+}
 .tdws-form-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+/*    border: 1px solid rgba(0,0,0,.08);*/
+border: 0;
 }
 .tdws-form-table tr th {
     vertical-align: middle;
     width: 200px;
+    text-align: left;
+    line-height: 1.3;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1d2327;
 }
 .tdws-form-table tr td {
     width: calc(100% - 200px);
@@ -20,22 +51,51 @@
     padding: 0;
     margin: 0;
 }
-.tdws-form-table tr td input[type="text"] {
-    display: block;
+div#tdws-tracking-status-form {
+    position: relative;
+    background: #fff;
+    padding: 2em 3em;
+    width: auto;
+    margin: 20px auto;
+    max-width: 800px;
+}
+.tdws-loader img {
+    max-width: 20px;
     width: 100%;
-    padding: .375rem .75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    border-radius: .25rem;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    height: auto;
+}
+.tdws-mail-button.tdws-active{
+    display: inline-block;
+}
+button.tdws-loader-button {
+    position: relative;
+}
+.tdws-success-msg,.tdws-error-msg,.tdws-mail-button{
+    display: none;
+}
+.tdws-success-msg{
+    color: green;
+}
+
+.tdws-error-msg{
+    color: red;
+}
+
+span.tdws-loader {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.tdws-loader-button.active .tdws-button-label {
+    visibility: hidden;
+}
+.tdws-loader-button.active span.tdws-loader{
+    display: flex;
 }
 .tdws-tag-list {
     display: none;
@@ -111,7 +171,10 @@
 .tdws-tracking-info .view:last-child {
     border-bottom: none;
 }
-
+.tdws-tag-list-action {
+    display: inline-block;
+    vertical-align: middle;
+}
 
 /* TDWS Tracking Meta Box */
 .tdws-hide-item,.tdws-hide{
@@ -134,7 +197,7 @@
     padding: 15px;
 }
 .tdws-order-tracking-item .tdws-field-box-inner{
- order: 2;
+    order: 2;
 }
 .tdws-order-tracking-item .tdws-item-label{
     order: 1;    
@@ -149,6 +212,7 @@
     flex-wrap: wrap;
     width: 100%;    
 }
+
 .tdws-item-label .tdws-item-label-ul li {
     margin: 0 5px 0 0;
     width: calc(32% - 8px);
@@ -161,7 +225,7 @@
     margin: 0;
 }
 .tdws-order-tracking-item .tdws-field-col {
-    width: calc(33% - 10px);
+    width: calc(33.33% - 10px);
     margin: 5px;
 }
 .tdws-order-tracking-item .tdws-field-col.tdws-full-width {
@@ -192,7 +256,6 @@
 .woocommerce_order_items_wrapper table.woocommerce_order_items thead .tdws-tracking-header {
     width: 30%;
 }
-
 .tdws-main-label {
     position: relative;
     display: inline-block;
@@ -222,7 +285,12 @@
     -webkit-transition: .4s;
     transition: .4s;
 }
-
+.tdws-icon-button{
+    min-height: 37px;
+    line-height: 37px;
+    display: inline-block;
+    width: 50px;
+}
 .tdws-main-label span.tdws-slider::before {
     position: absolute;
     content: "";
@@ -234,37 +302,33 @@
     -webkit-transition: .4s;
     transition: .4s;
 }
-
 .tdws-main-label input:checked + .tdws-slider {
     background-color: #2196F3;
 }
-
 .tdws-main-label input:checked + .tdws-slider::before {
     -webkit-transform: translateX(26px);
     -ms-transform: translateX(26px);
     transform: translateX(26px);
 }
-
 .tdws-main-label .tdws-slider.tdws-round {
     border-radius: 28px;
 }
-
 .tdws-main-label .tdws-slider.tdws-round::before {
     border-radius: 50%;
 }  
-.tdws-tracking-status+span.select2.select2-container .select2-selection,
-.tdws-tracking-status+span.select2.select2-container .select2-selection span.select2-selection__arrow {
+.tdws-comman-select2+span.select2.select2-container .select2-selection,
+.tdws-comman-select2+span.select2.select2-container .select2-selection span.select2-selection__arrow {
     height: 37px;
 }
-.tdws-tracking-status+span.select2.select2-container .select2-selection .select2-selection__rendered {
+.tdws-comman-select2+span.select2.select2-container .select2-selection .select2-selection__rendered {
     height: 37px;
     line-height: 36px;
 } 
-.tdws-tracking-status+span.select2.select2-container,.tdws-product-select+span.select2-container {
+.tdws-comman-select2+span.select2.select2-container,.tdws-product-select+span.select2-container {
     width: 100% !important;
 }
 .tdws-remove-item-btn {
-    background: #fd9898;
+ /*   background: #fd9898;
     color: #fff;
     font-size: 13px;
     line-height: 2.15384615;
@@ -278,14 +342,83 @@
     border-radius: 3px;
     white-space: nowrap;
     box-sizing: border-box;
-    border: 1px solid red;
+    border: 1px solid red;*/
+
+    width: 37px;
+    height: 37px;
+    line-height: normal;
+    min-height: auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #ff6a00;
+    border-radius: 5px;
+    box-shadow: none;
+    background-color: #ff6a00;
+    font-size: 16px;
+}
+.tdws-field-col.tdws-field-remove .tdws-field-actions li {
+    margin-bottom: 0;
+}
+.tdws-field-col.tdws-field-remove .tdws-field-actions {
+    display: none;
+    margin: 0;
+    gap: 10px;
+}
+.tdws-field-col.tdws-field-remove .tdws-field-actions.active{
+    display: flex;
+}
+.tdws-field-col.tdws-field-remove .tdws-icon-button.tdws-remove-item-btn {
+    margin-left: 10px;
+}
+.tdws-field-col.tdws-field-remove .tdws-field-actions .tdws-icon-button {
+    width: 37px;
+    height: 37px;
+    line-height: normal;
+    min-height: auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #ff6a00;
+    border-radius: 5px;
+    box-shadow: none;
+    background-color: #ff6a00;
+    font-size: 16px;
+}
+.tdws-remove-item-btn:hover,
+.tdws-field-col.tdws-field-remove .tdws-field-actions .tdws-icon-button:hover {
+    border-color: #ff6a00;
+    background-color: #fff;
+}
+.tdws-remove-item-btn:hover svg path,
+.tdws-field-col.tdws-field-remove .tdws-field-actions .tdws-icon-button:hover svg path {
+    fill: #ff6a00;
+}
+.tdws-remove-item-btn svg,
+.tdws-field-col.tdws-field-remove .tdws-field-actions .tdws-icon-button svg {
+    width: 18px;
+    height: 18px;
+}
+.tdws-remove-item-btn svg path,
+.tdws-field-col.tdws-field-remove .tdws-field-actions .tdws-icon-button svg path {
+    fill: #fff;
+}
+.tdws-remove-item-btn span,
+.tdws-field-col.tdws-field-remove .tdws-field-actions .tdws-icon-button span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .tdws-order-tracking-item .tdws-field-col:last-child {
     display: flex;
     align-items: center;
     margin-top: 25px;
 }
-.tdws-product-select+span.select2.select2-container span.select2-selection, .tdws-tracking-status+span.select2.select2-container  span.select2-selection{
+.tdws-product-select+span.select2.select2-container span.select2-selection, .tdws-comman-select2+span.select2.select2-container  span.select2-selection{
     border: 1px solid #ccc;
 }
 .tdws-show-item.tdws-order-tracking-item.active.tdws-error .tdws-field-col:first-child span.select2.select2-container span.select2-selection {
@@ -300,4 +433,823 @@
     background: #ccc;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, .04);
     color: rgba(44, 51, 56, .5);
+}
+
+.tdws-form-table button.button, .tdws-form-table .button.button-primary {
+    display: inline-block !important;
+    position: relative;
+    padding: 4px 12px 6px !important;
+    overflow: hidden !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: color .1s ease-in-out, background-color .1s ease-in-out, border-color .1s ease-in-out;
+    border: 1px solid #ff6a00 !important;
+    border-radius: 5px !important;
+    box-shadow: none;
+    background-color: #ff6a00 !important;
+    min-height: auto !important;
+    color: #fff !important;
+    font-weight: 500!important;
+    line-height: 1.5!important;
+    font-size: 16px;
+}
+.tdws-form-table button.button:hover, .tdws-form-table .button.button-primary:hover,.tdws-form-table button.button:focus, .tdws-form-table button.button:active {
+    background-color:  #fff  !important;
+    color: #ff6a00!important;
+    transition: color .1s ease-in-out, background-color .1s ease-in-out, border-color .1s ease-in-out;
+    border: 1px solid #ff6a00 !important;
+}
+.tdws-form-table input[type=color], .tdws-form-table input[type=date], .tdws-form-table input[type=datetime-local], .tdws-form-table input[type=datetime], .tdws-form-table input[type=email], .tdws-form-table input[type=month], .tdws-form-table input[type=number], .tdws-form-table input[type=password], .tdws-form-table input[type=search], .tdws-form-table input[type=tel], .tdws-form-table input[type=text], .tdws-form-table input[type=time], .tdws-form-table input[type=url], .tdws-form-table input[type=week], .tdws-form-table select, .tdws-form-table textarea, .tdws-form-table input[type=date], .tdws-form-table input[type=datetime-local], .tdws-form-table input[type=datetime], .tdws-form-table input[type=email], .tdws-form-table input[type=month], 
+.tdws-form-table input[type=number], .tdws-form-table input[type=password], .tdws-form-table input[type=search], .tdws-form-table input[type=tel], .tdws-form-table input[type=text], .tdws-form-table input[type=time], .tdws-form-table input[type=url], .tdws-form-table input[type=week] {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #161922;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ddddde;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    border: 1px solid #eceff5;
+    padding: 6px 15px;
+    color: #001e1d;
+    width: 100%;
+    max-width: 500px;
+    font-weight: 400;
+    background: transparent;
+    border-radius: 5px;
+}
+.tdws-form-table input:not([type="submit"]):focus-visible,
+.tdws-form-table input:not([type="submit"]):active,
+.tdws-form-table input:not([type="submit"]):focus{
+    outline: none !important;
+    box-shadow: none;
+    border-color: #ff6a00;
+}
+.tdws-form-table button:active,
+.tdws-form-table button:focus,
+.tdws-form-table input[type="submit"]:focus-visible,
+.tdws-form-table input[type="submit"]:active,
+.tdws-form-table input[type="submit"]:focus {
+    outline:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+}
+.tdws-form-table label.tdws-checkbox-label {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tdws-form-table label.tdws-checkbox-label .tdws-mail-button {
+    margin-left: 10px;
+}
+.tdws-form-table label.tdws-checkbox-label {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 20px;
+}
+.tdws-form-table input[type=checkbox],
+.tdws-form-table input[type=radio] {
+    border: 1px solid #eceff5;
+    width: 1.2rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    box-shadow: none;
+}
+.tdws-form-table input[type=checkbox]:checked {
+    border-color: #ff6a00;
+}
+.tdws-form-table input[type=checkbox]:checked::before {
+    margin: -1px -3px;
+    filter: invert(52%) sepia(55%) saturate(4709%) hue-rotate(360deg) brightness(124%) contrast(107%);
+}
+.tdws-full-width{
+    width: 100% !important;
+    max-width: 100% !important;
+}
+h3.tdws-cron-info {
+    font-size: 14px;
+    margin-bottom: 0;
+    margin-top: 5px;
+}
+a.tdws-tracking-updates-btn {
+    position: relative;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+.tdws-tracking-item-box ul {
+    list-style: none !important;
+    margin: 10px 0 0;
+}
+.tdws-tracking-item table, .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table, .woocommerce table.shop_table .tdws-tracking-item table {border-collapse: collapse;margin-top: 15px;}
+.tdws-tracking-item table th,.tdws-tracking-item table td,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td
+.woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce table.shop_table .tdws-tracking-item table td {
+    border-color: #ccc;
+    word-break: break-all;
+    padding: 9px 12px;
+    border: 1px solid #ccc;
+}
+.tdws-tracking-item tbody tr:last-child td,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item tbody tr:last-child td,
+.woocommerce table.shop_table .tdws-tracking-item tbody tr:last-child td {
+    border-bottom: 1px solid #ccc;
+}
+.tdws-tracking-item table th.tdws-tracking-no, .tdws-tracking-item table td.tdws-tracking-no,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th.tdws-tracking-no,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td.tdws-tracking-no,
+.woocommerce table.shop_table .tdws-tracking-item table th.tdws-tracking-no,.woocommerce table.shop_table .tdws-tracking-item table td.tdws-tracking-no {
+    width: 34%;
+}
+
+.tdws-tracking-item table th, .tdws-tracking-item table td,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td,
+.woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce table.shop_table .tdws-tracking-item table td {
+    width: 22%;
+}
+.tdws-tracking-item table th,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th,
+.woocommerce table.shop_table .tdws-tracking-item table th {
+    background: #dfdede;
+    border-color: #ccc;
+    font-size: 14px;
+    text-align: center;
+    border-top: 1px solid #ccc !important;
+}
+.tdws-tracking-item table th.tdws-tracking-no,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th.tdws-tracking-no,
+.woocommerce table.shop_table .tdws-tracking-item table th.tdws-tracking-no {
+    text-align: left;
+}
+.tdws-tracking-item table td,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td,
+.woocommerce table.shop_table .tdws-tracking-item table td {
+    font-size: 14px;
+    text-align: center;
+}
+.tdws-tracking-item table td.tdws-carrier a,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td.tdws-carrier a,
+.woocommerce table.shop_table .tdws-tracking-item table td.tdws-carrier a {
+    text-transform: uppercase;
+}
+
+.tdws-tracking-item table td.tdws-tracking-no,
+.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td.tdws-tracking-no,
+.woocommerce table.shop_table .tdws-tracking-item table td.tdws-tracking-no {
+    text-align: left;
+}  
+
+/* Progress Bar CSS  */ 
+
+.tdws-tracking-title h5 {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    font-family: inherit;
+    margin-top: 20px;
+}
+.tdws-tracking-title h5 {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    font-family: inherit;
+    margin-top: 0;
+    display: block;
+}
+.tdws-tracking-flex.tdws-tracking-title {
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    padding: 10px;
+}
+.tdws-tracking-row.tdws-tracking-title-row {
+    display: block;
+    border: 1px solid rgba(0, 0, 0, .1);
+    margin-top: 10px;
+}
+.tdws-tracking-row.tdws-tracking-title-row {
+    display: block;
+}
+.tdws-tracking-title-info p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+    display: block;
+}
+.tdws-tracking-title-info p a {
+    color: #ff6a00;
+    text-decoration: none !important;
+}
+.tdws-tracking-title-info p span span {
+    font-weight: 700;
+}
+
+.tdws-tracking-flex.tdws-tracking-title-info {
+    display: block;
+    padding: 10px;
+}
+
+.tdws-progressbar {
+    overflow: hidden;
+    color: #455A64;
+    padding-left: 0px;
+    text-align: center;
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin: 10px 0;
+    margin-bottom: 20px !important;
+}
+
+.tdws-progressbar li {
+    list-style-type: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: #000;
+    margin-top: 8px;
+    display: inline-block;
+    line-height: 1.5;
+    width: 25%;
+    float: left;
+    position: relative;
+    font-weight: 400;
+}
+
+.tdws-progressbar .tdws-step:before {
+    display: flex;
+    content: "";
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+}
+
+.tdws-progressbar li:before {
+    width: 20px;
+    height: 20px;
+    line-height: 45px;
+    display: block;
+    font-size: 20px;
+    background: #dfdede;
+    border-radius: 50%;
+    margin: auto;
+    padding: 0px;
+    z-index: 1;
+    position: relative;
+    border: 2px solid #d3d3d3;
+}
+.tdws-progressbar li.active:before {
+    content: "\2714";
+    font-size: 11px;
+    border-color: #ff6a00;
+}
+
+/*ProgressBar connectors*/
+.tdws-progressbar li:after {
+    content: '';
+    width: 100%;
+    height: 4px;
+    background: #dfdede;
+    position: absolute;
+    left: 0;
+    top: 10px;
+}
+span.tdws-progress-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #000;
+    margin-top: 8px;
+    display: inline-block;
+    line-height: normal;
+}
+
+.tdws-progressbar li:last-child:after {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    position: absolute;
+    left: -50%;
+}
+
+.tdws-progressbar li:nth-child(2):after, .tdws-progressbar li:nth-child(3):after {
+    left: -50%;
+}
+
+.tdws-progressbar li:first-child:after {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    position: absolute;
+    left: 50%;
+}
+
+.tdws-progressbar li:last-child:after {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.tdws-progressbar li:first-child:after {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+/*Color number of the step and the connector before it*/
+.tdws-progressbar li.active:before, .tdws-progressbar li.active:after {
+    background: #ff6a00;
+}
+span.tdws-progress-label {
+    display: block;
+} 
+.tdws-img-icon {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+}
+
+.tdws-icon-box { 
+    padding-bottom: 20px;
+}
+.tdws-icon-box svg {
+    width: 50px;
+    height: 50px;
+}
+.tdws-progressbar-info .tdws-tracking-flex{
+    width: 50%;
+    gap: 15px;
+}
+.tdws-tracking-flex {
+    display: flex;
+}
+
+.tdws-tracking-row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+.tdws-progressbar-info {
+    justify-content: space-between;
+    padding-top: 40px;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+span.tdws-loader {
+    display: none;    
+}
+.tdws-loader img {
+    max-width: 20px !important;
+    width: 100%;
+    height: auto;
+}
+.tdws-loader-button.active span.tdws-loader{
+    display: inline-block;
+}
+
+.tdws-provider-events {
+    padding: 10px 20px 20px;
+}
+.tdws-provider-events ul {
+    position: relative;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+.tdws-provider-events ul:before {
+    position: absolute;
+    content: "";
+    width: 2px;
+    background-color: #d2d5d8;
+    top: 55px;
+    bottom: 40px;
+    left: 14px;
+}
+.tdws-provider-events ul li {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+.tdws-provider-events ul li:first-child .tdws-box-icon .tdws-border {
+    border-color: #ff6a00;
+}
+.tdws-provider-events ul li:first-child .tdws-box-icon .tdws-border .tdws-active-icon {
+    background-color: #ff6a00;
+}
+.tdws-provider-events ul li .tdws-box-icon {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9;
+    position: relative;
+    top: 1px;
+}
+.tdws-provider-events ul li .tdws-box-icon .tdws-border {
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: solid 2px #e0e0e0;
+}
+.tdws-provider-events ul li .tdws-box-icon .tdws-border .tdws-active-icon {
+    width: 14px;
+    height: 14px;
+    background-color: #d2d5d8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.tdws-provider-events ul li .tdws-box-info {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background-color: #f0f0f1;
+    border-radius: 8px;
+    width: 100%;
+    word-break: break-all;
+    margin-left: 10px;
+}
+.tdws-provider-events ul li .tdws-box-info .tdws-provider-desc,
+.tdws-provider-events ul li .tdws-box-info .tdws-provider-location {
+    font-size: 14px;
+    line-height: 24px;
+    color: #212121;
+}
+
+.tdws-provider-list .tdws-provider-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 10px 0;
+}
+.tdws-provider-list .tdws-provider-info h3 {
+    font-size: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #000;
+    margin: 0;
+}
+.tdws-provider-list .tdws-provider-info h4 {
+    color: #212121;
+    font-size: 16px;
+    margin: 0;
+    margin-left: 5px;
+    white-space: nowrap;
+}
+.tdws-traking-id-info h4 {
+    margin: 0 0 20px;
+}
+.tdws-popup-wrapper {
+    padding: 15px;
+    max-width: 800px;
+    border-radius: 10px;
+    position: relative;
+    background: #f0f0f1;
+    width: auto;
+    margin: 20px auto;
+}
+.tdws-tracking-update-info-wrap {
+    background: #fff;
+    border: 1px solid #d2d5d8;
+    border-radius: 10px;
+}
+.tdws-popup-wrapper button.tdws-close {
+    font-size: 22px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 18px;
+    right: 18px;
+}
+.tdws-tracking-updates-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: break-word;
+    box-sizing: border-box;
+    background-color: var(--wp--preset--color--contrast);
+    border-radius: .33rem;
+    border-color: var(--wp--preset--color--contrast);
+    border-width: 0;
+    color: var(--wp--preset--color--base);
+    font-family: inherit;
+    font-size: var(--wp--preset--font-size--small);
+    font-style: normal;
+    font-weight: 500;
+    line-height: inherit;
+    padding: 0.6rem 1rem;
+    text-decoration: none;
+}
+.tdws-tracking-updates-btn:hover {
+    background-color: var(--wp--preset--color--contrast-2);
+    border-color: var(--wp--preset--color--contrast-2);
+    color: var(--wp--preset--color--base);
+}
+.tdws-loader img {
+    vertical-align: middle;
+    margin-left: 5px;
+}
+.tdws-tracking-row.tdws-tracking-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+    padding: 10px;
+}
+
+
+
+.tracklist-header {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+.tracklist-icon {
+    width: 25px;
+    height: 25px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #d2d5d8;
+    margin-right: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.tracklist-header .tdws-provider-box div p {
+    font-size: 14px;
+}
+.status-progress {
+    padding: 10px 0px 0;
+}
+.status-progress .status-progress-title {
+    font-size: 16px;
+    color: #000;
+    font-weight: 600;
+}
+
+
+.tracklist-header .tdws-provider-box {
+    position: relative;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    max-width:320px;
+   display: flex;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+}
+.tracklist-header p {
+    margin: 0;
+}
+
+
+
+
+
+
+.tdws-provider-list .tdws-main-header {
+    padding: 10px 20px;
+    border-bottom: 1px solid #d2d5d8;
+}
+
+
+.tdws-tracking-update-popup .btn-icon, .tdws-tracking-update-popup .btn.icon {
+    padding: 9px;
+}
+.tdws-tracking-update-popup .btn-icon, .tdws-tracking-update-popup .btn.icon {
+    padding: 10px;
+    font-size: 16px;
+    line-height: 1em;
+}
+.tdws-tracking-update-popup .btn {
+    padding: 6px 15px;
+    font-size: 14px;
+    line-height: 1.57142857;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .1);
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .1);
+    -webkit-transition: border .2s linear, color .2s linear, width .2s linear, background-color .2s linear;
+    -o-transition: border .2s linear, color .2s linear, width .2s linear, background-color .2s linear;
+    transition: border .2s linear, color .2s linear, width .2s linear, background-color .2s linear;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+.tdws-tracking-update-popup .btn {
+    display: inline-block;
+    padding: 6px 15px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.57142857;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 3px;
+}
+
+.tracklist-header .tracklist-icon div p {
+    font-size: 16px;
+}
+
+
+
+
+
+
+
+
+
+@media ( max-width : 1300px ){
+    .tdws-tracking-item table th.tdws-tracking-no, .tdws-tracking-item table td.tdws-tracking-no,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th.tdws-tracking-no,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td.tdws-tracking-no,
+    .woocommerce table.shop_table .tdws-tracking-item table th.tdws-tracking-no,.woocommerce table.shop_table .tdws-tracking-item table td.tdws-tracking-no {
+        width: 31%;
+    }
+
+    .tdws-tracking-item table th, .tdws-tracking-item table td,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th, .tdws-tracking-item table td,
+    .woocommerce table.shop_table .tdws-tracking-item table th, .tdws-tracking-item table td {
+        width: 23%;
+    }
+}
+
+@media ( max-width : 991px ){
+
+    .tdws-tracking-item table th, .tdws-tracking-item table td,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th, .woocommerce-js .woocommerce table.shop_table  .tdws-tracking-item table td,
+    .woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce table.shop_table  .tdws-tracking-item table td {
+        font-size: 13px;
+        line-height: 16px !important;
+    }
+
+    /* Progress Bar CSS  */
+    .tdws-icon-box {
+        width: 50%;
+    }
+}
+@media ( max-width : 767px ){
+
+    .tdws-tracking-item table thead,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table thead,
+    .woocommerce table.shop_table .tdws-tracking-item table thead {
+        display: none;
+    }
+
+    .tdws-tracking-item table tbody td::before,
+    .woocommerce table.shop_table .tdws-tracking-item table tbody td::before,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table tbody td::before {
+        content: attr(data-title) "" !important;
+        font-weight: 700;
+        width: 35%;
+        text-align: left;
+        font-size: 12px;
+        line-height: 13px;
+        z-index: 5;
+        display: inline-block;
+        box-sizing: content-box;
+        vertical-align: middle;
+        position: relative;
+    }
+
+    .tdws-tracking-item table tbody td::after,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table tbody td::after,
+    .woocommerce table.shop_table .tdws-tracking-item table tbody td::after {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 35%;
+        height: 100%;
+        background: #dfdede;
+        z-index: 1;
+        content: '';
+        padding: 10px;
+    }
+
+    .tdws-tracking-item table tbody td,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table tbody td,
+    .woocommerce table.shop_table .tdws-tracking-item table tbody td {
+        width: 100% !important;
+        display: block;
+        text-align: right !important;
+        border-color: #ccc !important;
+        position: relative;
+        border: 0 !important;
+        border-top: 1px solid #ccc !important;
+    }
+    .tdws-tracking-item table td span.tdws-td-data,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td span.tdws-td-data,
+    .woocommerce table.shop_table .tdws-tracking-item table td span.tdws-td-data {
+        width: 63%;
+        padding-left: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .tdws-tracking-item table,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table,
+    .woocommerce table.shop_table .tdws-tracking-item table{
+        border: 1px solid #ccc;
+    }
+    .tdws-tracking-item table tbody tr:first-child td.tdws-tracking-no,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table tbody tr:first-child td.tdws-tracking-no,
+    .woocommerce table.shop_table .tdws-tracking-item table tbody tr:first-child td.tdws-tracking-no {
+        border-top: 0 !important;
+    }
+
+    .tdws-progressbar li:after {
+        content: '';
+        width: 4px;
+        height: 75px;   
+        left: 10px; 
+    }
+    .tdws-progressbar li {
+        float: none;
+        display: block;
+        width: 100%;
+    }
+    .tdws-progress-box {
+        text-align: left;
+        margin-left: 50px;
+        position: relative;
+        top: -32px;
+    }
+    .tdws-progressbar li:before{
+        margin: 0;
+    }
+    .tdws-progressbar li:nth-child(2):after, .tdws-progressbar li:nth-child(3):after,.tdws-progressbar li:first-child:after {
+        left: 10.1px;   
+    }
+}
+
+@media ( max-width : 575px ){
+    .tdws-tracking-item table tbody td::after,.tdws-tracking-item table tbody td::before,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table tbody td::after,.tdws-tracking-item table tbody td::before,
+    .woocommerce table.shop_table .tdws-tracking-item table tbody td::after,.tdws-tracking-item table tbody td::before  {
+        width:calc(40% - 5px);
+        font-size: 11px;
+        line-height: 12px !important;
+
+    }
+    .tdws-tracking-item table td span.tdws-td-data,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td span.tdws-td-data,
+    .woocommerce table.shop_table .tdws-tracking-item table td span.tdws-td-data {
+        width: calc(60% - 5px);
+    }
+    .tdws-tracking-item table tbody td::after,.tdws-tracking-item table th,.tdws-tracking-item table td,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table tbody td::after,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td,
+    .woocommerce table.shop_table .tdws-tracking-item table tbody td::after,.woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce table.shop_table .tdws-tracking-item table td {
+        padding: 5px !important;
+    }
+    .tdws-tracking-item table th, .tdws-tracking-item table td,
+    .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td,
+    .woocommerce table.shop_table .tdws-tracking-item table th,.woocommerce table.shop_table .tdws-tracking-item table td {
+       font-size: 11px;
+       line-height: 12px !important;
+   }
 }
