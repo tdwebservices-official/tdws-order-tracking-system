@@ -17,7 +17,7 @@
  * Plugin URI:        https://tdwebservices.com
  * Description:       Provide your customers with order status updates and shipment tracking details.
  * Requires Plugins: woocommerce
- * Version:           1.0.3
+ * Version:           1.1.0
  * Author:            TD Web Services
  * Author URI:        https://tdwebservices.com/
  * License:           GPL-2.0+
@@ -31,25 +31,12 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-require 'plugin-update-checker/plugin-update-checker.php';
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
-
-$myUpdateChecker = PucFactory::buildUpdateChecker(
-	'https://github.com/tdwebservices-official/tdws-order-tracking-system/',
-	__FILE__,
-	'tdws-order-tracking-system'
-);
-
-//Set the branch that contains the stable release.
-$myUpdateChecker->setBranch('master');
-
 /**
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'TDWS_ORDER_TRACKING_SYSTEM_VERSION', '1.0.3' );
-
+define( 'TDWS_ORDER_TRACKING_SYSTEM_VERSION', '1.1.0' );
 
 /**
  * The code that runs during plugin activation.

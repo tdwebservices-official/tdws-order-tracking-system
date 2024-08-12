@@ -3,8 +3,8 @@ Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://tdwebservices.com/
 Tags: comments, spam
 Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 1.0.3
+Tested up to: 6.6.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,13 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.1.0 =
+* Automatic Shipment Status Updates 
+* Enhanced Customer Interface
+* Advanced Tracking Features
+* Reporting and Analytics
+* 17TRACK API Configuration
 
 = 1.0.3 =
 * Remove New Tag From Failed Status & Some CSS Issue Ressolve

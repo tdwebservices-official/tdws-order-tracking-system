@@ -1,15 +1,4 @@
 <?php
-
-/**
- * The public-facing functionality of the plugin.
- *
- * @link       https://tdwebservices.com
- * @since      1.0.0
- *
- * @package    Tdws_Order_Tracking_System
- * @subpackage Tdws_Order_Tracking_System/public
- */
-
 /**
  * The public-facing functionality of the plugin.
  *
@@ -40,6 +29,10 @@ class Tdws_Order_Tracking_System_Public {
 	 */
 	private $version;
 
+	protected $one7trackAPI;
+	
+	protected $tdws_active_plugin_list;
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -52,7 +45,7 @@ class Tdws_Order_Tracking_System_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
-		include 'partials/tdws-order-tracking-system-public-display.php';
+		$this->one7trackAPI = new Tdws_Order_Tracking_System_17TrackAPI( $this->plugin_name, $this->version );
 
 		/* Default TDWS Tag Save Hook */
 		add_action( 'woocommerce_new_order', array( $this, 'tdws_default_tag_save_setting' ), 99, 1 );
@@ -72,6 +65,12 @@ class Tdws_Order_Tracking_System_Public {
 			add_action( 'wp_ajax_tdws_order_tag_status', array( $this, 'tdws_change_order_tag' ) );
 			add_filter( 'dokan_get_vendor_orders_args',  array( $this, 'tdws_dokan_get_vendor_orders_args' ) , 99, 3 );
 		}
+
+
+		/* TDWS Get Tracking Data By No Ajax */
+
+		add_action( "wp_ajax_tdws_tracking_data_by_tracking_no", array( $this, "tdws_tracking_data_by_tracking_no" ) );
+		add_action( "wp_ajax_nopriv_tdws_tracking_data_by_tracking_no", array( $this, "tdws_tracking_data_by_tracking_no" ) );
 
 	}
 
@@ -98,6 +97,7 @@ class Tdws_Order_Tracking_System_Public {
 				wp_enqueue_style( $this->plugin_name.'-dokan-dashboard', plugin_dir_url( __FILE__ ) . 'css/tdws-dokan-dashboard.css', array(), $this->version, 'all' );
 			}
 		}
+		wp_enqueue_style( $this->plugin_name.'-tdws-popup', plugin_dir_url( dirname(__FILE__, 1) ) . 'admin/css/tdws-popup.css', array(), $this->version, 'all' );
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/tdws-order-tracking-system-public.css', array(), $this->version, 'all' );
 
 	}
@@ -127,6 +127,8 @@ class Tdws_Order_Tracking_System_Public {
 		}
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/tdws-order-tracking-system-public.js', array( 'jquery' ), $this->version, false );
+		wp_localize_script( $this->plugin_name, 'tdwsAjax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce('tdws_form_save') ) );       
+
 
 	}
 
@@ -271,6 +273,7 @@ class Tdws_Order_Tracking_System_Public {
 
 	/**
 	 * Update a order tag
+	 * @since    1.0.0
 	 *
 	 * @return void
  	*/
@@ -294,6 +297,11 @@ class Tdws_Order_Tracking_System_Public {
 		wp_send_json_success( $html );
 	}
 
+	/**
+	 * TDWS Dokan Order Tag Label
+	 *
+	 * @since    1.0.0
+	 */
 	public function tdws_order_tag_label( $get_tag ){
 		ob_start();		
 		?>
@@ -315,6 +323,11 @@ class Tdws_Order_Tracking_System_Public {
 		return ob_get_clean();
 	}
 
+	/**
+	 * TDWS Dokan Order Tag Filter Search
+	 *
+	 * @since    1.0.0
+	 */
 	public function tdws_dokan_get_vendor_orders_args( $all_args, $args, $q_arr = array() ) {
 		$order_tag = isset($_GET['order_tag']) ? sanitize_text_field( $_GET['order_tag'] ) : '';
 		if( $order_tag && $order_tag != 'All' ){	
@@ -327,14 +340,75 @@ class Tdws_Order_Tracking_System_Public {
 		return $all_args;
 	}
 
-	/* Show TDWS Tracking Information View Order */
+
+	/**
+	 * Get TDWS Tracking Data BY Tracking No 
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_tracking_data_by_tracking_no(){
+	
+		$data_arr = $value_arr = array();		
+		$success = false;		
+		check_ajax_referer( 'tdws_form_save', 'ajax_nonce' );					
+		$tracking_no = isset($_POST['tracking_no']) ? sanitize_text_field( $_POST['tracking_no'] ) : "";
+		$order_date = isset($_POST['order_date']) ? sanitize_text_field( $_POST['order_date'] ) : "";
+		$trackData = $this->one7trackAPI->getPureTrackInfo( $tracking_no );
+		
+		$trackProvidersList = isset($trackData['track_info']['tracking']['providers']) ? $trackData['track_info']['tracking']['providers'] : array();
+		$track_latest_event = isset($trackData['track_info']['latest_event']) ? $trackData['track_info']['latest_event'] : array();		
+
+		$tracking_status_html = '';
+		ob_start();
+		if( $trackProvidersList ){
+			foreach ( $trackProvidersList as $t_key => $providerItem ) {
+				$tracking_events = isset($providerItem['events']) ? $providerItem['events'] : array();
+				$tracking_provider = isset($providerItem['provider']) ? $providerItem['provider'] : array();
+				include plugin_dir_path(__FILE__).'/templates/tdws-order-tracking-provider-statuses.php';
+			}
+		}
+		$tracking_status_html = ob_get_clean();
+		$track_carrier = isset($trackData['carrier']) ? $trackData['carrier'] : '';
+		wp_send_json( array( 'type' => 'success', 'carrier' => $track_carrier, 'tracking_status_html' => $tracking_status_html ) );
+	}
+
+	/**
+	 * Show TDWS Tracking Information View Order
+	 *
+	 * @since    1.1.0
+	 */
 	public function tdws_show_tracking_info_view_order( $item_id, $item, $order, $plain_text ){
 		$tracking_item_list = twds_tracking_data_by_item_id( $item_id, 1 );		
-
 		global $post;
 		if ( is_a( $post, 'WP_Post' ) && !has_shortcode( $post->post_content, 'woocommerce_order_tracking') && !is_wc_endpoint_url() && !$tracking_item_list  ) {
 			return false;
 		}
+		?>
+		<div id="tdws-tracking-update-popup" class="tdws-tracking-update-popup tdws-popup">
+			<div class="tdws-popup-wrapper">
+				<button title="Close (Esc)" type="button" class="tdws-close">×</button>
+				<div class="tdws-tracking-update-info-wrap">						
+					<div class="tdws-traking-event-updates">								
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php	
+		$tdws_enable_17tracking = get_post_meta( $order->get_id(), 'tdws_enable_17tracking', true );			
+		if( $tdws_enable_17tracking == 'yes' ){
+			include plugin_dir_path(__FILE__).'/templates/tdws-order-tracking-progress.php';				
+		}else{
+			$this->tdws_show_past_tracking_info_view_order( $tracking_item_list );
+		}
+		
+	}
+
+	/**
+	 * Show TDWS Old Tracking Information View Order
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_show_past_tracking_info_view_order( $tracking_item_list ){
 		?>
 		<div class="tdws-tracking-item">
 			<?php 
@@ -429,8 +503,8 @@ class Tdws_Order_Tracking_System_Public {
 				?>			
 			</div>
 			<?php
-		}
-
 	}
+
+}
 
 

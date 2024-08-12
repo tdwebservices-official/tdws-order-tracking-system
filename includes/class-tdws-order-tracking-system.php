@@ -1,18 +1,4 @@
 <?php
-
-/**
- * The file that defines the core plugin class
- *
- * A class definition that includes attributes and functions used across both the
- * public-facing side of the site and the admin area.
- *
- * @link       https://tdwebservices.com
- * @since      1.0.0
- *
- * @package    Tdws_Order_Tracking_System
- * @subpackage Tdws_Order_Tracking_System/includes
- */
-
 /**
  * The core plugin class.
  *
@@ -112,20 +98,34 @@ class Tdws_Order_Tracking_System {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-tdws-order-tracking-system-i18n.php';
 
 		/**
-		 * The class responsible for defining internationalization functionality
-		 * of the plugin.
+		 * This file contains common functions used across all plugins
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/tdws-order-tracking-functions.php';
 
 		/**
-		 * The class responsible for defining all actions that occur in the admin area.
+		 * The class responsible for defining all actions that occur in the admin area
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-tdws-order-tracking-system-admin.php';
 
 		/**
+		 * The class responsible for configuring settings for the 17track API
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-tdws-17tracking-config.php';
+
+		/**
+		 * The class responsible for configuring settings, hooks, and actions for the 17track API
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-tdws-17tracking-api.php';
+
+		/**
+		 * The class responsible for defining all automation-related cron jobs for order tracking with the 17track API
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-tdws-17tracking-automation.php';
+		
+		/**
 		 * The class responsible for defining all actions that occur in the admin order meta box.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-tdws-order-tracking-system-order-metabox.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-tdws-order-tracking-system-order-metabox.php';		
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -169,6 +169,7 @@ class Tdws_Order_Tracking_System {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		new Tdws_Order_Tracking_System_Order_MetaBox( $this->get_plugin_name(), $this->get_version() );
+		new Tdws_Order_Tracking_Automation( $this->get_plugin_name(), $this->get_version() );
 
 	}
 
