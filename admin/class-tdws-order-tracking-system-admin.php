@@ -944,7 +944,7 @@ class Tdws_Order_Tracking_System_Admin {
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
 		$column2_name = 'sub_status';
-		$add_column_SQL2 = "ALTER TABLE $table2_name ADD $column2_name text NOT NULL DEFAULT NULL  AFTER status;";
+		$add_column_SQL2 = "ALTER TABLE $table2_name ADD $column2_name text DEFAULT NULL  AFTER status;";
 		maybe_add_column( $table2_name, $column2_name, $add_column_SQL2 );
 
 		$column_name = 'tracking_status';
