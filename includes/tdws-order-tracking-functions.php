@@ -481,7 +481,37 @@ function tdws_add_column_tracking_statusDB(){
 		$addColumnFlag = maybe_add_column( $table2_name, $column_name, $add_column_SQL );
 		if( $addColumnFlag ){
 			update_option( 'tdws_add_column_tracking_status', $addColumnFlag );
-		}	
+		}
+
+		$tdws_table3 = $wpdb->prefix . 'tdws_order_tracking_status';
+
+		// Prepare the SQL query with placeholders
+		$table3_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $tdws_table3 ) );   // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder	
+
+		#Check to see if the table exists already, if not, then create it
+		if ( $table3_exists != $tdws_table3 ) {
+
+			$tdws_sql_3 = "CREATE TABLE $tdws_table3 (
+				`id` int(11) NOT NULL AUTO_INCREMENT,
+				`order_id` int(11) DEFAULT 0,
+				`tracking_id` int(11) DEFAULT 0,
+				`not_found` text DEFAULT NULL,				
+				`info_received` text DEFAULT NULL,				
+				`in_transit` text DEFAULT NULL,
+				`expired` text DEFAULT NULL,
+				`available_for_pickup` text DEFAULT NULL,
+				`out_for_delivery` text DEFAULT NULL,				
+				`delivery_failure` text DEFAULT NULL,
+				`delivered` text DEFAULT NULL,
+				`exception` text DEFAULT NULL,
+				`status` int(11) DEFAULT 0,
+				`create_date` datetime DEFAULT CURRENT_TIMESTAMP NULL,
+				`update_date` datetime DEFAULT CURRENT_TIMESTAMP NULL,
+				PRIMARY KEY  (id)
+			) $charset_collate;";
+			dbDelta( $tdws_sql_3 );
+		}
+
 	}
 
 }

@@ -64,8 +64,8 @@ if( $tracking_item_list ){
 				}
 
 				$defaultTrackingProgress = array(
-					'info_received' => array( 'label' => __( 'Ordered', 'tdws-order-tracking-system' ),'date' => $trackingStatusData['create_date'] ),
-					'in_transit' => array( 'label' => __( 'Shipped', 'tdws-order-tracking-system' ),'date' => $in_transitDate ),
+					'info_received' => array( 'label' => __( 'Ordered', 'tdws-order-tracking-system' ),'date' => $order_created_date ),
+					'in_transit' => array( 'label' => __( 'Shipped', 'tdws-order-tracking-system' ),'date' => $tdws_pickup_date ),
 					'out_for_delivery' => array( 'label' => __( 'Out For Delivery', 'tdws-order-tracking-system' ),'date' => $out_for_deliveryDate ),
 					'delivered' => array( 'label' => __( 'Delivered', 'tdws-order-tracking-system' ),'date' => $deliveredDate ),
 				);

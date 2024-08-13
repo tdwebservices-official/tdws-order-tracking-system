@@ -400,7 +400,7 @@ span.tdws-loader {
     border-radius: .33rem;
     border-color: #111111;
     border-width: 0;
-    color: #f9f9f9;
+    color: #f9f9f9 !important;
     font-family: inherit;
     font-size: 14px;
     font-style: normal;
@@ -412,7 +412,7 @@ span.tdws-loader {
 .tdws-tracking-updates-btn:hover {
     background-color: #636363;
     border-color: #636363;
-    color: #f9f9f9;
+    color: #f9f9f9 !important;
 }
 .tdws-loader img {
     vertical-align: middle;
