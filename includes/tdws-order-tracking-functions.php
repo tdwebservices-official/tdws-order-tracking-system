@@ -281,7 +281,7 @@ function tdws_get_all_carrier_list(){
 	$carrier_list = array();
 	$cache_carrier_list = get_transient( 'tdws_api_carrier_list' );	
 	$tdws_carrier_items = array();
-	$carrier_list = file_get_contents( plugin_dir_url( __DIR__ ).'admin/json/apicarrier.json' );
+	$carrier_list = file_get_contents( plugin_dir_path( __DIR__ ).'admin/json/apicarrier.json' );
 	if( $carrier_list ){
 		$carrier_list = json_decode( $carrier_list, true );
 		if( $carrier_list ){				
