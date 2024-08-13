@@ -197,9 +197,14 @@ class Tdws_Order_Tracking_System_Admin {
 	public function tdws_register_menu_option_page_setting() {
 		
 		//register plugin settings
-		register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_opt' );
-		register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_mail' );
-		register_setting( 'tdws-order-tracking-setting', 'tdws_17track_opt' );
+		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-generalData' ) ) {			
+			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_opt' );
+			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_mail' );		
+		}
+
+		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-apiData' ) ) {			
+			register_setting( 'tdws-order-tracking-setting', 'tdws_17track_opt' );
+		}
 
 	}
 
@@ -298,6 +303,7 @@ class Tdws_Order_Tracking_System_Admin {
 						<tfoot>
 							<tr>
 								<td colspan="2">
+									<?php wp_nonce_field( $this->plugin_name.'-generalData', 'tdwsformType' ); ?>
 									<?php submit_button(); ?>
 								</td>
 							</tr>
@@ -418,6 +424,7 @@ class Tdws_Order_Tracking_System_Admin {
 						<tfoot>
 							<tr>
 								<td colspan="2">
+									<?php wp_nonce_field( $this->plugin_name.'-apiData', 'tdwsformType' ); ?>
 									<?php submit_button(); ?>
 								</td>
 							</tr>

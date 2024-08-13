@@ -280,28 +280,25 @@ function tdws_get_tracking_statuses( $type = 0 ){
 function tdws_get_all_carrier_list(){
 	$carrier_list = array();
 	$cache_carrier_list = get_transient( 'tdws_api_carrier_list' );	
-	if( empty( $cache_carrier_list ) ){
-		$carrier_list = file_get_contents( plugin_dir_url( __DIR__ ).'admin/json/apicarrier.json' );
-		if( $carrier_list ){
-			$carrier_list = json_decode( $carrier_list, true );
-			if( $carrier_list ){				
-				$tdws_carrier_items = array();
-				foreach ( $carrier_list as $key => $carrier_item ) {
-					if( isset($carrier_item['key']) && !empty( $carrier_item['key'] ) && isset($carrier_item['_name'] ) && !empty( $carrier_item['_name'] )  ){
-						$tdws_carrier_items[] = array(
-							'code' => trim($carrier_item['key']),
-							'name' => trim($carrier_item['_name']),
-						);	
-					}					
-				}
-				set_transient( 'tdws_api_carrier_list', $tdws_carrier_items );	
-			}		
-		}	
-	}else{
-		$carrier_list = $cache_carrier_list;
+	$tdws_carrier_items = array();
+	$carrier_list = file_get_contents( plugin_dir_url( __DIR__ ).'admin/json/apicarrier.json' );
+	if( $carrier_list ){
+		$carrier_list = json_decode( $carrier_list, true );
+		if( $carrier_list ){				
+			
+			foreach ( $carrier_list as $key => $carrier_item ) {
+				if( isset($carrier_item['key']) && !empty( $carrier_item['key'] ) && isset($carrier_item['_name'] ) && !empty( $carrier_item['_name'] )  ){
+					$tdws_carrier_items[] = array(
+						'code' => trim($carrier_item['key']),
+						'name' => trim($carrier_item['_name']),
+					);	
+				}					
+			}
+			set_transient( 'tdws_api_carrier_list', $tdws_carrier_items );	
+		}		
 	}
-	$carrier_list = apply_filters( 'tdws_api_carrier_list_values', $carrier_list );
-	return $carrier_list;
+	$tdws_carrier_items = apply_filters( 'tdws_api_carrier_list_values', $tdws_carrier_items );
+	return $tdws_carrier_items;
 }
 
 /**
