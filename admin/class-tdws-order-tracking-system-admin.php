@@ -96,6 +96,9 @@ class Tdws_Order_Tracking_System_Admin {
 
 		// This hook fire when update a plugin
 		add_action( 'upgrader_process_complete', array( $this, 'tdws_after_upgrade_function_load' ), 99, 2 );
+
+		// This hook manually added missing column or table
+		add_action( "wp_ajax_tdws_sync_tdws_tables", array( $this, "tdws_sync_tdws_tables" ) );
 		
 	}
 
@@ -418,6 +421,15 @@ class Tdws_Order_Tracking_System_Admin {
 										<?php	
 									}
 									?>
+								</td>
+							</tr>
+							<tr valign="top" class="tdws-subject-tr" >
+								<th scope="row">
+									<?php esc_html_e( 'Sync All TDWS Tables', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'When update a plugin please click here once', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<a href="<?php echo site_url('wp-admin/admin-ajax.php?action=tdws_sync_tdws_tables'); ?>" target="_blank" class="tdws-sync-table-link"><button type="button" class="button"><span class="tdws-button-label"><?php echo _e( 'Sync TDWS Tables', 'tdws-order-tracking-system' ); ?></span></button></a>								
 								</td>
 							</tr>		
 						</tbody>
@@ -911,12 +923,66 @@ class Tdws_Order_Tracking_System_Admin {
 			foreach($options['plugins'] as $each_plugin) {
 				if ( $each_plugin == $current_plugin_path_name ) {
 
-					/* Version 1.3.0 */
+					/* Version 1.1.0 */
 					tdws_add_column_tracking_statusDB();
 
 				}
 			}
 		}
+
+	}
+
+	/**
+	 * This hook manually added missing column or table
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_sync_tdws_tables(){
+		
+		global $wpdb;		
+		$table2_name = $wpdb->base_prefix.'tdws_order_tracking';
+		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+		$column2_name = 'sub_status';
+		$add_column_SQL2 = "ALTER TABLE $table2_name ADD $column2_name text NOT NULL DEFAULT NULL  AFTER status;";
+		maybe_add_column( $table2_name, $column2_name, $add_column_SQL2 );
+
+		$column_name = 'tracking_status';
+		$add_column_SQL = "ALTER TABLE $table2_name ADD $column_name INT(11) NOT NULL DEFAULT 0  AFTER sub_status;";
+		maybe_add_column( $table2_name, $column_name, $add_column_SQL );
+
+
+		$tdws_table3 = $wpdb->prefix . 'tdws_order_tracking_status';		
+
+		// Prepare the SQL query with placeholders
+		$table3_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $tdws_table3 ) );   // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder	
+
+		#Check to see if the table exists already, if not, then create it
+		if ( $table3_exists != $tdws_table3 ) {
+
+			$tdws_sql_3 = "CREATE TABLE $tdws_table3 (
+				`id` int(11) NOT NULL AUTO_INCREMENT,
+				`order_id` int(11) DEFAULT 0,
+				`tracking_id` int(11) DEFAULT 0,
+				`not_found` text DEFAULT NULL,				
+				`info_received` text DEFAULT NULL,				
+				`in_transit` text DEFAULT NULL,
+				`expired` text DEFAULT NULL,
+				`available_for_pickup` text DEFAULT NULL,
+				`out_for_delivery` text DEFAULT NULL,				
+				`delivery_failure` text DEFAULT NULL,
+				`delivered` text DEFAULT NULL,
+				`exception` text DEFAULT NULL,
+				`status` int(11) DEFAULT 0,
+				`create_date` datetime DEFAULT CURRENT_TIMESTAMP NULL,
+				`update_date` datetime DEFAULT CURRENT_TIMESTAMP NULL,
+				PRIMARY KEY  (id)
+			) $charset_collate;";
+
+			dbDelta( $tdws_sql_3 );
+		}
+
+		wp_die( "sync tables" );
 
 	}
 

@@ -100,6 +100,9 @@ class Tdws_Order_Tracking_Automation {
 			$tdws_tracking_cron_page = 1;
 		}
 
+		$tdws_17track_opt = get_option( 'tdws_17track_opt' );
+		$mail_tracking_status = isset($tdws_17track_opt['mail_tracking_status']) ? $tdws_17track_opt['mail_tracking_status'] : array();
+
 		$page = $tdws_tracking_cron_page;
 		$total = is_array($tdws_tracking_cron_ids) ? count( $tdws_tracking_cron_ids ) : 0; 
 		$limit = 3;  
@@ -151,7 +154,9 @@ class Tdws_Order_Tracking_Automation {
 									foreach ( $trackEventList as $state_key => $status_time ) {
 										if( isset($status_time[0]) && !empty($status_time[0]) ){
 											if( ( isset($singleStatusData[$state_key]) && $singleStatusData[$state_key] == '' ) || ( isset($singleStatusData[$state_key]) && is_null($singleStatusData[$state_key]) ) || ( isset($singleStatusData[$state_key]) && empty($singleStatusData[$state_key]) )  ){
-												$mail_tracking_stages[] = $state_key;				
+												if( is_array($mail_tracking_status) && in_array( $state_key, $mail_tracking_status ) ){
+													$mail_tracking_stages[] = $state_key;					
+												}
 												$update_stage_data[$state_key] = date( 'Y-m-d H:i:s', strtotime( $status_time[0] ) );								
 											}
 											if( $state_key == 'pickup' ){

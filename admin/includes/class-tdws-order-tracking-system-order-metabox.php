@@ -220,7 +220,7 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 						$where = [ 'id' => $twds_tracking_id ];
 						$wpdb->update( $tdws_table1, $tdws_tracking_arr, $where );
 					}else{
-						$tdws_tracking_arr['status'] = 'Not Found';
+						$tdws_tracking_arr['status'] = 'Shipped';
 						$wpdb->insert(
 							$tdws_table1, $tdws_tracking_arr, 
 							$tb1_format

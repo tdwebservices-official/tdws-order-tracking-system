@@ -394,7 +394,8 @@ class Tdws_Order_Tracking_System_Public {
 			</div>
 		</div>
 		<?php	
-		$tdws_enable_17tracking = get_post_meta( $order->get_id(), 'tdws_enable_17tracking', true );			
+		$tdws_enable_17tracking = get_post_meta( $order->get_id(), 'tdws_enable_17tracking', true );	
+		$order_created_date = $order->get_date_created();		
 		if( $tdws_enable_17tracking == 'yes' ){
 			include plugin_dir_path(__FILE__).'/templates/tdws-order-tracking-progress.php';				
 		}else{
