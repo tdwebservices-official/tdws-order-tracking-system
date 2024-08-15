@@ -942,6 +942,7 @@ class Tdws_Order_Tracking_System_Admin {
 		global $wpdb;		
 		$table2_name = $wpdb->base_prefix.'tdws_order_tracking';
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
 		$tdws_table3 = $wpdb->prefix . 'tdws_order_tracking_status';		
 
 		// Prepare the SQL query with placeholders
