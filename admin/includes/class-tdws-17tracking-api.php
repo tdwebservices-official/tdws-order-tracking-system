@@ -42,7 +42,9 @@ class Tdws_Order_Tracking_System_17TrackAPI {
 
 	const TDWS_17TRACK_STOP_TRACK_URI = '/stoptrack';
 
-	const TDWS_17TRACK_RE_TRACK_URI = '/Retrack';
+	const TDWS_17TRACK_RE_TRACK_URI = '/retrack';
+
+	const TDWS_17TRACK_DELETE_TRACK_URI = '/deletetrack';
 
 	const TDWS_17TRACK_GET_TRACK_INFO_URI = '/gettrackinfo';
 	
@@ -168,8 +170,11 @@ class Tdws_Order_Tracking_System_17TrackAPI {
 									$main_event_time_stages['pickup'][] = $t_value['time_utc'];
 								}
 								$main_event_stages[$main_stage_key][] = $t_value;
-								$main_event_time_stages[$main_stage_key][] = $t_value['time_utc'];
+								$main_event_time_stages[$main_stage_key][] = $t_value['time_utc'];								
 							}
+							$first_event_time = end($p_value['events']);
+							$main_event_stages['shipped'][] = $first_event_time;
+							$main_event_time_stages['shipped'][] = $first_event_time['time_utc'];
 						}
 					}
 				}
@@ -368,6 +373,23 @@ class Tdws_Order_Tracking_System_17TrackAPI {
 	}
 
 	/**
+	 * delete-tracking api function
+	 *
+	 * @since    1.1.0
+	 */
+	public function deleteTrack( $trackNumber, $carrier = null ) {
+		
+		$response = $this->deleteTrackMulti([[
+			'number' => $trackNumber,
+			'carrier' => $carrier,
+		]]);
+
+		$this->checkErrors( $response, self::TDWS_17TRACK_DELETE_TRACK_URI );
+
+		return true;
+	}
+
+	/**
 	 * register multi tracking api function
 	 *
 	 * @since    1.1.0
@@ -424,6 +446,16 @@ class Tdws_Order_Tracking_System_17TrackAPI {
 	 */
 	public function reTrackMulti( $trackNumbers ) {
 		$url = $this->config->getHost() . self::TDWS_17TRACK_API_VERSION . self::TDWS_17TRACK_RE_TRACK_URI;
+		return $this->baseRequest($trackNumbers, $url);
+	}
+
+	/**
+	* get delete tracking multi api function
+	*
+	* @since    1.1.0
+	*/
+	public function deleteTrackMulti( $trackNumbers ) {
+		$url = $this->config->getHost() . self::TDWS_17TRACK_API_VERSION . self::TDWS_17TRACK_DELETE_TRACK_URI;
 		return $this->baseRequest($trackNumbers, $url);
 	}
 

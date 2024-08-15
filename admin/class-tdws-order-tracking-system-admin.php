@@ -942,16 +942,6 @@ class Tdws_Order_Tracking_System_Admin {
 		global $wpdb;		
 		$table2_name = $wpdb->base_prefix.'tdws_order_tracking';
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-		$column2_name = 'sub_status';
-		$add_column_SQL2 = "ALTER TABLE $table2_name ADD $column2_name text NOT NULL DEFAULT NULL  AFTER status;";
-		maybe_add_column( $table2_name, $column2_name, $add_column_SQL2 );
-
-		$column_name = 'tracking_status';
-		$add_column_SQL = "ALTER TABLE $table2_name ADD $column_name INT(11) NOT NULL DEFAULT 0  AFTER sub_status;";
-		maybe_add_column( $table2_name, $column_name, $add_column_SQL );
-
-
 		$tdws_table3 = $wpdb->prefix . 'tdws_order_tracking_status';		
 
 		// Prepare the SQL query with placeholders
@@ -965,6 +955,7 @@ class Tdws_Order_Tracking_System_Admin {
 				`order_id` int(11) DEFAULT 0,
 				`tracking_id` int(11) DEFAULT 0,
 				`not_found` text DEFAULT NULL,				
+				`shipped` text DEFAULT NULL,				
 				`info_received` text DEFAULT NULL,				
 				`in_transit` text DEFAULT NULL,
 				`expired` text DEFAULT NULL,
@@ -980,6 +971,40 @@ class Tdws_Order_Tracking_System_Admin {
 			) $charset_collate;";
 
 			dbDelta( $tdws_sql_3 );
+		}
+
+		$add_extra_columns = array(
+			array(
+				'column_name' => 'sub_status',
+				'table_name' => $table2_name,
+				'after_add' => 'status',
+				'extra' => 'text DEFAULT NULL',
+			),
+			array(
+				'column_name' => 'tracking_status',
+				'table_name' => $table2_name,
+				'after_add' => 'sub_status',
+				'extra' => 'text DEFAULT NULL',
+			),
+			array(
+				'column_name' => 'carrier_code',
+				'table_name' => $table2_name,
+				'after_add' => 'carrier_name',
+				'extra' => 'text DEFAULT NULL',
+			),
+			array(
+				'column_name' => 'shipped',
+				'table_name' => $tdws_table3,
+				'after_add' => 'not_found',
+				'extra' => 'text DEFAULT NULL',
+			)
+		);
+
+		if( $add_extra_columns ){
+			foreach ( $add_extra_columns as $key => $extra_col_item ) {
+				$add_column_SQL = "ALTER TABLE ".$extra_col_item['table_name']." ADD ".$extra_col_item['column_name']." ".$extra_col_item['extra']." AFTER ".$extra_col_item['after_add'].";";			
+				maybe_add_column( $extra_col_item['table_name'], $extra_col_item['column_name'], $add_column_SQL );
+			}
 		}
 
 		wp_die( "sync tables" );

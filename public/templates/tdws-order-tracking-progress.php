@@ -34,6 +34,7 @@ if( $tracking_item_list ){
 				$out_for_deliveryDate = isset($trackingStatusData['out_for_delivery']) ? $trackingStatusData['out_for_delivery'] : '';
 				$deliveredDate = isset($trackingStatusData['delivered']) ? $trackingStatusData['delivered'] : '';
 				$exceptionDate = isset($trackingStatusData['exception']) ? $trackingStatusData['exception'] : '';
+				$shippedDate = isset($trackingStatusData['shipped']) ? $trackingStatusData['shipped'] : '';
 				if( $in_transitDate && $info_receivedDate == '' ){
 					$info_receivedDate = $in_transitDate;
 				}
@@ -65,7 +66,7 @@ if( $tracking_item_list ){
 
 				$defaultTrackingProgress = array(
 					'info_received' => array( 'label' => __( 'Ordered', 'tdws-order-tracking-system' ),'date' => $order_created_date ),
-					'in_transit' => array( 'label' => __( 'Shipped', 'tdws-order-tracking-system' ),'date' => $tdws_pickup_date ),
+					'in_transit' => array( 'label' => __( 'Shipped', 'tdws-order-tracking-system' ),'date' => $shippedDate ),
 					'out_for_delivery' => array( 'label' => __( 'Out For Delivery', 'tdws-order-tracking-system' ),'date' => $out_for_deliveryDate ),
 					'delivered' => array( 'label' => __( 'Delivered', 'tdws-order-tracking-system' ),'date' => $deliveredDate ),
 				);

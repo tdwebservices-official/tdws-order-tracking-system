@@ -206,7 +206,8 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 					$tdws_tracking_arr = array(					
 						'order_id' => $order_id,
 						'tracking_no' => $tdws_value['tracking_no'],
-						'carrier_name' => $tdws_value['carrier_name'],												
+						'carrier_name' => $tdws_value['carrier_name'],		
+						'carrier_code' => $tdws_value['carrier_code'],											
 						'create_date' => date( 'Y-m-d H:i:s' ),
 						'update_date' => date( 'Y-m-d H:i:s' ),
 					);					
@@ -215,7 +216,6 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 					if( isset($tdws_value['tdws_item_id']) && !empty($tdws_value['tdws_item_id']) ){					
 						$twds_tracking_id = $tdws_value['tdws_item_id'];
 						$tdws_trackingData = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $tdws_table1 WHERE id = %d", $twds_tracking_id ), ARRAY_A );		
-
 						unset( $tdws_tracking_arr['create_date'] );
 						$where = [ 'id' => $twds_tracking_id ];
 						$wpdb->update( $tdws_table1, $tdws_tracking_arr, $where );
@@ -233,11 +233,6 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 							'order_tracking_id' => $twds_tracking_id,
 							'meta_key' => 'product_ids',
 							'meta_value' => $tdws_product_ids,
-						),
-						array(
-							'order_tracking_id' => $twds_tracking_id,
-							'meta_key' => 'carrier_code',
-							'meta_value' => $tdws_carrier_code,
 						)
 					);		
 
@@ -266,11 +261,7 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 						}else{
 							if( $tdws_trackingData ){
 								if( isset($tdws_trackingData['tracking_no']) && trim($tdws_trackingData['carrier_name']) != trim($tdws_value['carrier_name']) ){
-
-									$old_carrier_code = twds_tracking_get_item_meta( $twds_tracking_id, 'carrier_code' );
-
 									$track_carrier_change = $this->one7trackAPI->changeCarrier( $tdws_value['tracking_no'], trim($tdws_value['carrier_name']),  trim($tdws_trackingData['carrier_name']) );
-
 									if( $track_carrier_change == true ){
 										$tdws_meta_list[] = array(
 											'order_tracking_id' => $twds_tracking_id,
@@ -318,21 +309,41 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 			}
 			
 			if( is_array( $tdws_update_tracking_ids ) && count($tdws_update_tracking_ids) > 0 ){
+
 				$tk_ids_format = implode(',', array_fill(0, count( $tdws_update_tracking_ids ), '%d')); 	
+				$find_sql_1 = "SELECT * FROM ".$tdws_table1." WHERE id NOT IN ( $tk_ids_format ) AND order_id = %d";
+
+				if( empty( $tdws_enable_tracking ) || $tdws_enable_tracking == '' ){
+					$find_sql_1 = "SELECT * FROM ".$tdws_table1." WHERE id IN ( $tk_ids_format ) AND order_id = %d";
+				}
+
+				$delete_track_items = $wpdb->get_results( $wpdb->prepare( $find_sql_1, array_merge( $tdws_update_tracking_ids, array( $order_id ) ) ), ARRAY_A );
+
+				$this->tdws_delete_tracking_items( $order_id, $delete_track_items );
+
 				$delete_sql_1 = "DELETE FROM ".$tdws_table1." WHERE id NOT IN ( $tk_ids_format ) AND order_id = %d";
 				$delete_sql_2 = "DELETE FROM ".$tdws_table2." as t1 LEFT JOIN ".$tdws_table1." as t2 ON t1.order_tracking_id = t2.id WHERE order_tracking_id NOT IN ( $tk_ids_format ) AND t2.order_id = %d";
+				$delete_sql_3 = "DELETE FROM ".$tdws_table3." WHERE tracking_id NOT IN ( $tk_ids_format ) AND order_id = %d";
+
 				if( empty( $tdws_enable_tracking ) || $tdws_enable_tracking == '' ){
 					$delete_sql_1 = "DELETE FROM ".$tdws_table1." WHERE id IN ( $tk_ids_format ) AND order_id = %d";
 					$delete_sql_2 = "DELETE FROM ".$tdws_table2." as t1 LEFT JOIN ".$tdws_table1." as t2 ON t1.order_tracking_id = t2.id WHERE order_tracking_id IN ( $tk_ids_format ) AND t2.order_id = %d";
+					$delete_sql_3 = "DELETE FROM ".$tdws_table3." WHERE tracking_id IN ( $tk_ids_format ) AND order_id = %d";
 				}			
 				/* DELETE TDWS Order Tracking */
 				$wpdb->query( $wpdb->prepare( $delete_sql_1, array_merge( $tdws_update_tracking_ids, array( $order_id ) ) ) );
 				/* DELETE TDWS Order Tracking Meta */
-				$wpdb->query( $wpdb->prepare( $delete_sql_2, $tdws_update_tracking_ids, $order_id ) );	
+				$wpdb->query( $wpdb->prepare( $delete_sql_2, $tdws_update_tracking_ids, $order_id ) );
+
+				/* DELETE TDWS Order Tracking Status */
+				$wpdb->query( $wpdb->prepare( $delete_sql_3,  array_merge( $tdws_update_tracking_ids, array( $order_id ) ) ) );				
 			}
 			
 		}
 		if( is_array( $tdws_update_tracking_ids ) && count($tdws_update_tracking_ids) == 0 ){
+
+			$delete_track_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM ".$tdws_table1." WHERE order_id = %d", $order_id ), ARRAY_A );
+			$this->tdws_delete_tracking_items( $order_id, $delete_track_items );
 
 			/* DELETE TDWS Order Tracking Meta */
 			$delete_sql_2 = "DELETE FROM FROM $tdws_table2 as t1
@@ -344,8 +355,32 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 			$delete_sql_1 = "DELETE FROM ".$tdws_table1." WHERE order_id = %d";				
 			/* DELETE TDWS Order Tracking */
 			$wpdb->query( $wpdb->prepare( $delete_sql_1,  $order_id ) );
+
+			$delete_sql_3 = "DELETE FROM ".$tdws_table3." WHERE order_id = %d";				
+			/* DELETE TDWS Order Tracking Status */
+			$wpdb->query( $wpdb->prepare( $delete_sql_3,  $order_id ) );
+
 		}
 	}	
+
+	/**
+	 * delete for tracking items.
+	 *
+	 * @since    1.1.0
+	 */
+	public function tdws_delete_tracking_items( $order_id, $delete_track_items ){
+		if( $delete_track_items ){
+			foreach ( $delete_track_items as $key => $trackItem ) {
+				$remove_tracking_no = isset($trackItem['tracking_no']) ? $trackItem['tracking_no'] : '';
+				$carrier_code = isset($trackItem['carrier_code']) ? $trackItem['carrier_code'] : '';
+				if( !empty($remove_tracking_no) && !is_null($remove_tracking_no) ){						
+					$track_delete = $this->one7trackAPI->deleteTrack( $remove_tracking_no, $carrier_code );	
+					add_post_meta( $order_id, 'tdws_delete_tracking', $remove_tracking_no );
+					twds_update_order_meta( $order_id, 'tdws_delete_tracking', $remove_tracking_no, true );	
+				}
+			}
+		}
+	}
 
 	/**
 	 * Send mail again for tracking item.

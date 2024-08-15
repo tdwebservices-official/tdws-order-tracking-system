@@ -4,7 +4,7 @@ Donate link: https://tdwebservices.com/
 Tags: comments, spam
 Requires at least: 3.0.1
 Tested up to: 6.6.1
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,11 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.1.5 =
+* Pickup to Shipped Status Added Cron Automation
+* Front End Side Fix CSS Issue
+* Add Delete 17 Tracking On Remove Tracking
 
 = 1.1.4 =
 * Extra Automation Email Bug Fix

@@ -437,9 +437,8 @@ span.tdws-loader {
     display: flex;
 }
 .tracklist-icon {
-    width: 25px;
-    height: 25px;
-    padding: 10px;
+    width: 50px;
+    height: 50px;
     background: #fff;
     border: 1px solid #d2d5d8;
     margin-right: 10px;
@@ -447,6 +446,7 @@ span.tdws-loader {
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 50px;
 }
 .tracklist-header .tdws-provider-box div p {
     font-size: 14px;
