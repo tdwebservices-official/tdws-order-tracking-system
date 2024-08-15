@@ -42,14 +42,14 @@ function tdws_set_timezone(){
 }
 
 /*Update order meta*/
-function twds_update_order_meta( $object_id = 0, $meta_key = '', $meta_value = '' ){
+function twds_update_order_meta( $object_id = 0, $meta_key = '', $meta_value = '', $always_add = false ){
 	global $wpdb;
 	$table_name = $wpdb->base_prefix.'wc_orders_meta';
 	$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table_name ) );
 	if ( $wpdb->get_var( $query ) == $table_name ) {
 		$meta_result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE meta_key = %s AND order_id = %d", $meta_key, $object_id ), ARRAY_A );	
 
-		if ( !isset($meta_result['id']) ) {
+		if ( !isset($meta_result['id']) || $always_add == true ) {
 			$result = $wpdb->insert(
 				$table_name,
 				array(
@@ -482,7 +482,6 @@ function tdws_add_column_tracking_statusDB(){
 		if( $addColumnFlag ){
 			update_option( 'tdws_add_column_tracking_status', $addColumnFlag );
 		}
-
 		$tdws_table3 = $wpdb->prefix . 'tdws_order_tracking_status';
 
 		// Prepare the SQL query with placeholders

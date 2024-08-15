@@ -59,6 +59,9 @@ div#tdws-tracking-status-form {
     margin: 20px auto;
     max-width: 800px;
 }
+a.tdws-sync-table-link {
+    display: inline-block;
+}
 .tdws-loader img {
     max-width: 20px;
     width: 100%;
