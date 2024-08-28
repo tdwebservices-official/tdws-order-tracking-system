@@ -74,7 +74,7 @@ class Tdws_Order_Tracking_System_17TrackAPI {
 	 *
 	 * @since    1.1.0
 	 */
-	public function register( $trackNumber, $carrier = '', $tag = '' ) {
+	public function register( $trackNumber, $carrier = '', $tag = '', $extra_data = array() ) {
 		
 		$params = ['number' => $trackNumber];
 		if(!empty($carrier)) {
@@ -82,6 +82,9 @@ class Tdws_Order_Tracking_System_17TrackAPI {
 		}
 		if(!empty($tag)) {
 			$params['tag'];
+		}
+		if( is_array($extra_data) && count($extra_data) > 0 ){			
+			$params = array_merge( $params , $extra_data );
 		}
 		$response = $this->registerMulti([
 			$params

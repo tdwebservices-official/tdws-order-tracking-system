@@ -328,6 +328,7 @@ class Tdws_Order_Tracking_System_Admin {
 		$tdws_tracking_cron_batch_date = get_option( 'tdws_tracking_cron_batch_date' );
 		$tdws_tracking_cron_batch_read_date = get_option( 'tdws_tracking_cron_batch_read_date' );
 		$change_key = isset($tdws_17track_opt['change_key']) ? $tdws_17track_opt['change_key'] : '';
+		$order_id_prefix = isset($tdws_17track_opt['order_id_prefix']) ? $tdws_17track_opt['order_id_prefix'] : '';
 		$mail_tracking_status = isset($tdws_17track_opt['mail_tracking_status']) ? $tdws_17track_opt['mail_tracking_status'] : array();
 		$tdws_17track_mail_status = tdws_17track_mail_tracking_status();	
 		$tdws_date_format = (get_option('date_format')) ? get_option('date_format') : 'd/m/Y';			
@@ -344,7 +345,11 @@ class Tdws_Order_Tracking_System_Admin {
 						<tbody>						
 							<tr valign="top">
 								<th scope="row"><?php esc_html_e( 'Change Key', 'tdws-order-tracking-system' ); ?></th>
-								<td><input type="text" placeholder="<?php esc_html_e( 'Please Change Key', 'tdws-order-tracking-system' ); ?>" name="tdws_17track_opt[change_key]" value="<?php echo esc_attr( $change_key ); ?>" /></td>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Change Key', 'tdws-order-tracking-system' ); ?>" name="tdws_17track_opt[change_key]" value="<?php echo esc_attr( $change_key ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Order ID Prefix', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Order ID Prefix', 'tdws-order-tracking-system' ); ?>" name="tdws_17track_opt[order_id_prefix]" value="<?php echo esc_attr( $order_id_prefix ); ?>" /></td>
 							</tr>	
 							<tr valign="top">
 								<th scope="row"><?php esc_html_e( '17Track Tracking Status', 'tdws-order-tracking-system' ); ?></th>

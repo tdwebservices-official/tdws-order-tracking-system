@@ -189,6 +189,11 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 		$tdws_meta = isset($_POST['tdws_meta']) ? $_POST['tdws_meta'] : array();
 		$tdws_enable_tracking = isset($_POST['tdws_enable_tracking']) ? sanitize_text_field( $_POST['tdws_enable_tracking'] ) : '';
 
+		$s_tdws_17track_opt = get_option( 'tdws_17track_opt' );
+		$s_order_id_prefix = isset($s_tdws_17track_opt['order_id_prefix']) ? $s_tdws_17track_opt['order_id_prefix'] : '';
+
+		$tdws_track_order_id = trim( $s_order_id_prefix.$order_id );
+
 		update_post_meta( $order_id, 'tdws_enable_tracking', $tdws_enable_tracking );
 		twds_update_order_meta( $order_id, 'tdws_enable_tracking', $tdws_enable_tracking );		
 
@@ -240,7 +245,10 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 						$one7track_register = twds_tracking_get_item_meta( $twds_tracking_id, '17track_register' );
 						
 						if( $one7track_register != 'yes' ){
-							$track_register = $this->one7trackAPI->register( $tdws_value['tracking_no'], $tdws_value['carrier_code'], $tdws_value['carrier_name'] );
+							$tdws_17track_extra_data = array(
+								'order_no' => $tdws_track_order_id
+							);							
+							$track_register = $this->one7trackAPI->register( $tdws_value['tracking_no'], $tdws_value['carrier_code'], $tdws_value['carrier_name'], $tdws_17track_extra_data );
 							if( $track_register == true ){
 								$tdws_meta_list[] = array(
 									'order_tracking_id' => $twds_tracking_id,
