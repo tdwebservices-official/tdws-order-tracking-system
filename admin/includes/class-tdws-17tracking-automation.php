@@ -200,6 +200,20 @@ class Tdws_Order_Tracking_Automation {
 						if( $deliveryTrackItem['id'] ){
 							$wpdb->query( $wpdb->prepare( "UPDATE $table_name SET status = 1, update_date = %s WHERE id = %d", $tdws_current_date, $deliveryTrackItem['id'] ) );
 						}
+						if( $deliveryTrackItem['order_id'] ){
+							$tdws_order = wc_get_order( $deliveryTrackItem['order_id'] );
+							if( is_object($tdws_order) ){
+								$total_line_item = $tdws_order->get_items('line_item');
+								if( is_array($total_line_item) ){				
+									$tracking_count_arr = $wpdb->get_row( $wpdb->prepare( "SELECT count(*) as total_tracking FROM $table2_name WHERE tracking_status = 1 AND order_id = %d", $deliveryTrackItem['order_id'] ), ARRAY_A );				
+									$total_tracking = isset($tracking_count_arr['total_tracking']) ? $tracking_count_arr['total_tracking'] : 0;
+									if( $total_tracking == count($total_line_item) ){
+										$tdws_order->update_status( 'completed' ); 
+										update_post_meta( $deliveryTrackItem['order_id'], 'completed_status_via_17track_api', 'yes' );
+									}
+								}	
+							}
+						}
 					}
 				}
 			}		

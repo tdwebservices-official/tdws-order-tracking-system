@@ -4,7 +4,7 @@ Donate link: https://tdwebservices.com/
 Tags: comments, spam
 Requires at least: 3.0.1
 Tested up to: 6.6.1
-Stable tag: 1.1.7
+Stable tag: 1.1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.1.8 =
+* Update Order Status Completed After 17trackAPI Item all Delivered
 
 = 1.1.7 =
 * Add Order ID and Order Prefix Setting for 17TrackAPI
