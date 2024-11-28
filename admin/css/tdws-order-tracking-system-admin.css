@@ -1102,11 +1102,11 @@ span.tdws-loader {
 }
 
 
+/* Media POPUP  */
 
-
-
-
-
+.tdws-single-upload-medias ul li .delete-img { position: absolute; right: 3px; top: 2px; background: aliceblue; border-radius: 50%; cursor: pointer; font-size: 14px; line-height: 20px; color: red; }
+.tdws-single-upload-medias ul li { width: 120px; display: inline-block; vertical-align: middle; margin: 5px; position: relative; }
+.tdws-single-upload-medias ul li img { width: 100%; }
 
 
 @media ( max-width : 1300px ){

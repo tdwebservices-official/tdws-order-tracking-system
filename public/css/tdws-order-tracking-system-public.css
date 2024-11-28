@@ -540,13 +540,210 @@ span.tdws-loader {
     font-size: 16px;
 }
 
+.tdws-coupon-list {
+    display: grid;
+    grid-row-gap: 20px;
+}
 
+/* Coupon CSS */
+.tdws-coupon-item {
+    min-height: 100px;
+    padding: 15px;
+    align-items: center;
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #fff;
+    flex-wrap:wrap;
+    box-shadow: 0px 0px 5px #ccc;
+}
+.tdws-coupon-img {
+    width: 150px;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
 
+.tdws-coupon-img img {
+    width: 100%;
+    height: auto;
+}
 
+.tdws-coupon-info {
+    width: calc( 100%  - 150px );
+    padding-left: 15px;
+}
+.tdws-coupon-title-box .tdws-coupon-title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+    color: inherit;
+    margin-bottom: 0;
+}
+.tdws-offer-highlight,.tdws-coupon-date {
+    margin-top: 10px;
+    font-size: 16px;
+    line-height: 20px;
+    color: inherit;
+}
 
+.tdws-coupon-link a {
+    text-decoration: none !important;
+}
+.tdws-coupon-date {
+    margin-top: 10px;
+}
+.tdws_coupon_code h4 {
+    display: inline-block;
+    line-height: 3.125rem;
+    overflow: hidden;
+    padding: 0 20px;
+    position: static;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-color: #edf2ff;
+    font-size: 24px;
+    font-weight: 600;
+    border: 1px dotted blue;
+    cursor: pointer;
+    margin-bottom:0;
+}
+.tdws_coupon_code {
+    margin-top: 10px;
+    position:relative;
+    width: max-content;
+}
+.tdws_coupon_code h4::after {
+    background-color: #3258b3;
+    border-radius: 2px;
+    bottom: -30px;
+    color: #fff;
+    content: "Click to copy code";
+    font-size: .875rem;
+    font-weight: 600;
+    line-height: 1.14;
+    padding: .5rem;
+    white-space: nowrap;
+    z-index: 200;
+    left: 50%;
+    opacity: 0;
+    position: absolute;
+    transform: translate(-50%);
+    transition: opacity .5s;
+    visibility: hidden;
+}
+.tdws_coupon_code h4:hover:after,.tdws_coupon_code h4:hover:before,.tdws_coupon_code h4.active:after,.tdws_coupon_code h4.active:before {
+    opacity: 1;
+    visibility: visible;
+}
 
+.tdws_coupon_code h4.active::after{
+    content: "Code Copied";
+}
 
+.tdws_coupon_code h4::before {
+    left: 50%;
+    opacity: 0;
+    position: absolute;
+    transform: translate(-50%);
+    transition: opacity .5s;
+    visibility: hidden;
+    border-bottom: 10px solid #3258b3;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    bottom: 0px;
+    content: "";
+}
+.tdws-coupon-item.no-coupon-img .tdws-coupon-info {
+    width: 100%;
+    padding-left: 0;
+}
+.woocommerce-order .tdws-coupon-list-wrappper {
+    margin-top: 50px;
+}
+.tdws-brand-logo {
+    max-width: 30px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
 
+.tdws-brand-name {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.tdws-brand-name h4 {
+    color: inherit;
+    font-size: 14px;
+    vertical-align: middle;
+    margin-bottom: 0;
+    font-weight: bold;
+}
+
+.tdws-brand-box {margin-bottom: 15px;}
+a.tdws-coupon-link-item {
+    align-items: center;
+    display: flex;
+    color: inherit;
+    outline: 0;
+}
+a.tdws-coupon-link-item:focus{
+    outline: 0;
+}
+.coupon_interest_box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.coupon_interest_box .coupon_interest-input {
+    width: calc( 100%  - 100px );
+}
+
+.coupon_interest-submit {
+    width: 100px;
+    text-align: right;
+}
+
+.coupon_interest_box .coupon_interest-input span.select2.select2-container {
+    width: 100% !important;
+    
+}
+.coupon-interest-form h4 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: inherit;
+}
+
+.coupon_interest_box .coupon_interest-input span.select2.select2-container .select2-selection__rendered {
+       margin: 0;
+}
+.coupon_interest_box .coupon_interest-input span.select2-selection {
+    min-height: 40px;
+    border: 1px solid #ccc;
+}
+.coupon_interest-submit button {
+    border: 0;
+    border-radius: 0;
+    background: none;
+    background-color: #43454b;
+    border-color: #43454b;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    text-shadow: none;
+    display: inline-block;
+    -webkit-appearance: none;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    padding: 0 10px;
+    border-radius: 5px;
+    min-width: 80px;
+}
 
 @media ( max-width : 1300px ){
     .tdws-tracking-item table th.tdws-tracking-no, .tdws-tracking-item table td.tdws-tracking-no,
@@ -667,6 +864,33 @@ span.tdws-loader {
     .tdws-progressbar li:nth-child(2):after, .tdws-progressbar li:nth-child(3):after,.tdws-progressbar li:first-child:after {
         left: 10.1px;   
     }
+
+    /* Coupon CSS */
+    
+    .tdws-coupon-info {
+        width: 100%;
+        padding-left: 0;
+        margin-top: 15px;
+    }
+    
+    .tdws-coupon-img {
+        width: 100%;
+        max-width: 100px;
+    }
+    
+    .tdws-coupon-title-box .tdws-coupon-title {
+        font-size: 20px;
+        line-height: 26px;
+    }
+    
+    .tdws_coupon_code h4 {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .woocommerce-order .tdws-coupon-list-wrappper {
+        margin-top: 30px;
+    }
 }
 
 @media ( max-width : 575px ){
@@ -694,4 +918,19 @@ span.tdws-loader {
        font-size: 11px;
        line-height: 12px !important;
    }
+
+   .coupon_interest_box {
+    flex-wrap: wrap;
+    }
+    .coupon_interest_box .coupon_interest-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .coupon_interest-submit {
+        width: 100px;
+        text-align: left;
+    }
+    form.coupon-interest-form {
+        margin-bottom: 0;
+    }
 }

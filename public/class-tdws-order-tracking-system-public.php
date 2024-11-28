@@ -33,6 +33,10 @@ class Tdws_Order_Tracking_System_Public {
 	
 	protected $tdws_active_plugin_list;
 
+	protected $my_account_page_coupon_tab_url;
+	
+	protected $my_account_page_coupon_tab_title;
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -72,6 +76,22 @@ class Tdws_Order_Tracking_System_Public {
 		add_action( "wp_ajax_tdws_tracking_data_by_tracking_no", array( $this, "tdws_tracking_data_by_tracking_no" ) );
 		add_action( "wp_ajax_nopriv_tdws_tracking_data_by_tracking_no", array( $this, "tdws_tracking_data_by_tracking_no" ) );
 
+		/* TDWS Add Coupon Tab */	
+		
+		$tdws_coupon_settings_opt = get_option( 'tdws_coupon_settings_opt' );
+		$default_my_account_page_coupon_tab_url = apply_filters( 'tdws_my_account_page_coupon_tab_title', 'tdws-my-rewards-list' );
+		$this->my_account_page_coupon_tab_url = (isset($tdws_coupon_settings_opt['my_account_page_coupon_tab_url']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_tab_url'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_tab_url'] : $default_my_account_page_coupon_tab_url;
+		$default_my_account_page_coupon_tab_title = apply_filters( 'tdws_my_account_page_coupon_tab_title', 'My Rewards' );
+		$this->my_account_page_coupon_tab_title = (isset($tdws_coupon_settings_opt['my_account_page_coupon_tab_title']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_tab_title'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_tab_title'] : $default_my_account_page_coupon_tab_title;	
+
+		add_action( 'init', array( $this, 'tdws_add_coupon_tab_endpoint' ) );
+		add_filter( 'query_vars', array( $this, 'tdws_coupon_tab_query_vars' ), 0 );
+		add_filter( 'woocommerce_account_menu_items', array( $this, 'tdws_add_coupon_tab_link_my_account' ) );
+		add_action( 'woocommerce_account_'.$this->my_account_page_coupon_tab_url.'_endpoint', array( $this, 'tdws_coupon_tab_content' ) );
+		add_action( 'woocommerce_thankyou', array( $this, 'tdws_show_coupon_list_thankyou_page' ), 99, 1 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'tdws_woo_dequeue_select2' ), 999 );
+		add_action( 'wp', array( $this, 'tdws_save_coupon_callback' ) );
+
 	}
 
 	/**
@@ -98,8 +118,27 @@ class Tdws_Order_Tracking_System_Public {
 			}
 		}
 		wp_enqueue_style( $this->plugin_name.'-tdws-popup', plugin_dir_url( dirname(__FILE__, 1) ) . 'admin/css/tdws-popup.css', array(), $this->version, 'all' );
+		global $wp;
+	    if( isset($wp->request) && basename($wp->request) === $this->my_account_page_coupon_tab_url ) {
+	        wp_enqueue_style( $this->plugin_name.'-select2', plugin_dir_url( __FILE__ ) . 'css/select2.min.css', array(), $this->version, 'all' );
+	    }
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/tdws-order-tracking-system-public.css', array(), $this->version, 'all' );
 
+	}
+
+	/**
+	 * Remove Select2 for woocommerce
+	 *
+	 * @since    1.0.0
+	 */
+	public function tdws_woo_dequeue_select2(){
+	    global $wp;
+        if( isset($wp->request) && basename($wp->request) === $this->my_account_page_coupon_tab_url ) {
+           wp_dequeue_style( 'select2' );
+           wp_deregister_style( 'select2' );
+           wp_dequeue_script( 'select2');
+           wp_deregister_script('select2');
+        }
 	}
 
 	/**
@@ -125,6 +164,11 @@ class Tdws_Order_Tracking_System_Public {
 				wp_enqueue_script( $this->plugin_name.'-dokan-dashboard', plugin_dir_url( __FILE__ ) . 'js/tdws-dokan-dashboard.js', array( 'jquery' ), $this->version, false );
 			}
 		}
+
+		global $wp;
+        if( isset($wp->request) && basename($wp->request) === $this->my_account_page_coupon_tab_url ) {
+            wp_enqueue_script( $this->plugin_name.'-select2', plugin_dir_url( __FILE__ ) . 'js/select2.min.js', array( 'jquery' ), $this->version, false );
+        }
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/tdws-order-tracking-system-public.js', array( 'jquery' ), $this->version, false );
 		wp_localize_script( $this->plugin_name, 'tdwsAjax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce('tdws_form_save') ) );       
@@ -402,6 +446,323 @@ class Tdws_Order_Tracking_System_Public {
 			$this->tdws_show_past_tracking_info_view_order( $tracking_item_list );
 		}
 		
+	}
+
+	/**
+	 * Add Custom Coupon Tab
+	 *
+	 * @since    1.1.9
+	 */
+	public function tdws_add_coupon_tab_endpoint(){
+		add_rewrite_endpoint( $this->my_account_page_coupon_tab_url, EP_ROOT | EP_PAGES );
+	}
+
+	/**
+	 * Add Custom Coupon Tab Query Vars
+	 *
+	 * @since    1.1.9
+	 */
+	public function tdws_coupon_tab_query_vars( $vars ){
+		$vars[] = $this->my_account_page_coupon_tab_url;
+		return $vars;
+	}
+
+	/**
+	 * Add Custom Coupon Tab Link Items
+	 *
+	 * @since    1.1.9
+	 */
+	public function tdws_add_coupon_tab_link_my_account( $items ){	
+		$items[$this->my_account_page_coupon_tab_url] = $this->my_account_page_coupon_tab_title;
+		return $items;
+	}
+
+	/**
+	 * Add Custom Coupon Tab Content
+	 *
+	 * @since    1.1.9
+	 */
+	public function tdws_coupon_tab_content(){
+
+		$tdws_coupon_settings_opt = get_option( 'tdws_coupon_settings_opt' );
+		
+		$default_my_account_page_coupon_per_page = apply_filters( 'tdws_my_account_page_coupon_per_page', 5 );
+		$default_my_account_page_coupon_list_order = apply_filters( 'tdws_my_account_page_coupon_list_order', 'ASC' );
+		$default_my_account_page_coupon_list_order_by = apply_filters( 'tdws_my_account_page_coupon_list_order_by', 'ID' );
+		$default_my_account_page_no_coupon_data_message = apply_filters( 'tdws_my_account_page_no_coupon_data_message', 'No Deals Available' );
+
+		$my_account_page_coupon_per_page = (isset($tdws_coupon_settings_opt['my_account_page_coupon_per_page']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_per_page'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_per_page'] : $default_my_account_page_coupon_per_page;	
+		$my_account_page_coupon_list_order = (isset($tdws_coupon_settings_opt['my_account_page_coupon_list_order']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_list_order'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_list_order'] : $default_my_account_page_coupon_list_order;	
+		$my_account_page_coupon_list_order_by = (isset($tdws_coupon_settings_opt['my_account_page_coupon_list_order_by']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_list_order_by'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_list_order_by'] : $default_my_account_page_coupon_list_order_by;	
+
+		$default_my_account_page_coupon_filter_label = apply_filters( 'tdws_my_account_page_coupon_filter_label', 'Your Interests:' );
+		$default_my_account_page_coupon_filter_placeholder = apply_filters( 'tdws_my_account_page_coupon_filter_placeholder', 'Select Interests' );
+
+		$my_account_page_no_coupon_data_message = (isset($tdws_coupon_settings_opt['my_account_page_no_coupon_data_message']) && !empty($tdws_coupon_settings_opt['my_account_page_no_coupon_data_message'])) ? $tdws_coupon_settings_opt['my_account_page_no_coupon_data_message'] : $default_my_account_page_no_coupon_data_message;		
+
+		$my_account_page_coupon_filter_label = (isset($tdws_coupon_settings_opt['my_account_page_coupon_filter_label']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_filter_label'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_filter_label'] : $default_my_account_page_coupon_filter_label;	
+
+		$my_account_page_coupon_filter_placeholder = (isset($tdws_coupon_settings_opt['my_account_page_coupon_filter_placeholder']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_filter_placeholder'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_filter_placeholder'] : $default_my_account_page_coupon_filter_placeholder;	
+
+		$tdws_coupon_settings_arr = array(
+			'my_account_page_coupon_filter_label' => $my_account_page_coupon_filter_label,
+			'my_account_page_coupon_filter_placeholder' => $my_account_page_coupon_filter_placeholder
+		);
+
+		echo $this->tdws_coupon_list_html( $my_account_page_coupon_per_page, $my_account_page_coupon_list_order, $my_account_page_coupon_list_order_by, 'yes', $my_account_page_no_coupon_data_message, $tdws_coupon_settings_arr );
+	}
+
+	/**
+	 * Save Search TDWS Coupon
+	 *
+	 * @since    1.1.9
+	 */
+	public function tdws_save_coupon_callback() {
+		
+		if ( isset( $_GET['findInterest'] ) && wp_verify_nonce( $_GET['findInterest'], $this->plugin_name.'-searchInterest' ) ) {
+			if ( is_user_logged_in() ){
+				$tdws_user_id = get_current_user_id();
+				$coupon_interest = isset($_GET['coupon_interest']) ? $_GET['coupon_interest'] : array();
+				update_user_meta( $tdws_user_id, 'coupon_interest', $coupon_interest );
+			}
+		}
+
+	}
+
+	/**
+	 * TDWS Coupon HTML
+	 *
+	 * @since    1.1.9
+	 */
+	public function tdws_coupon_list_html( $post_per_page = 5, $order = 'DESC', $orderby = 'ID', $show_pagination = 'no', $no_coupon_data_message = '', $tdws_coupon_settings_arr = array() ){
+		ob_start();
+		$tdws_date_format = (get_option('date_format')) ? get_option('date_format') : 'd/m/Y';
+		$t_args = array(
+			'post_type'=> 'tdws-coupon',
+			'orderby'    => $orderby,
+			'post_status' => 'publish',
+			'order'    => $order,
+			'posts_per_page' => $post_per_page,
+			'meta_query' => array(
+				array(
+					'key' => 'tdws_coupon_expiry_date',
+					'value' => date( 'Y-m-d' ),
+					'type'  => 'date',
+					'compare' => '>='
+				),
+			),
+		);
+		if( $show_pagination == 'yes' ){
+			$paged = isset($_GET['pa']) ? $_GET['pa'] : 1;
+			$t_args['paged'] = $paged;
+
+			if(  isset($_GET['coupon_interest']) ){
+				$coupon_interest = isset($_GET['coupon_interest']) ? $_GET['coupon_interest'] : array();				
+			}else{
+			    if( is_user_logged_in() ){
+			       $coupon_interest = get_user_meta( get_current_user_id(), 'coupon_interest', true );	
+			    }
+			}
+
+			if( is_array($coupon_interest) && count($coupon_interest) > 0 ){
+				$t_args['tax_query'] = array(
+					array(
+						'taxonomy' => 'tdws-coupon-interest',
+						'field' => 'term_id',
+						'terms' => $coupon_interest,
+						'operator' => 'IN',
+					)
+				);
+			}
+		}
+
+		?>
+		<div class="tdws-coupon-list-wrappper">
+			<div class="tdws-coupon-list">
+				<?php
+				if( $show_pagination == 'yes' ){					
+					?>
+					<div class="tdws-coupon-filter">
+						<form class="coupon-interest-form" method="GET">
+							<h4><?php esc_html_e( $tdws_coupon_settings_arr['my_account_page_coupon_filter_label'] ); ?></h4>
+							<?php
+							$coupon_interest_list = get_terms( 'tdws-coupon-interest', array(
+								'hide_empty' => false,
+							) );
+							?>
+							<div class="coupon_interest_box">
+							    <div class="coupon_interest-input">
+    							    <select name="coupon_interest[]" class="coupon_interest" data-placeholder="<?php esc_html_e( $tdws_coupon_settings_arr['my_account_page_coupon_filter_placeholder'] ); ?>" multiple>
+        								<option value=""><?php _e( 'Select Interests: ', 'tdws-order-tracking-system' ); ?></option>
+        								<?php
+        								foreach ( $coupon_interest_list as $key => $interest_item ) {
+        									$tdws_selected = "";
+        									if( is_array($coupon_interest) && count($coupon_interest) > 0 && in_array( $interest_item->term_id, $coupon_interest ) ){
+        										$tdws_selected = 'selected="selected"';
+        									}
+        									?>
+        									<option value="<?php echo esc_attr( $interest_item->term_id ); ?>" <?php echo esc_attr( $tdws_selected ); ?>><?php esc_html_e( $interest_item->name ); ?></option>
+        									<?php
+        								}
+        								?>
+        							</select>
+    							</div>
+    							<div class="coupon_interest-submit">
+    								<?php wp_nonce_field( $this->plugin_name.'-searchInterest', 'findInterest' ); ?>
+    								<button type="submit"><?php _e( 'Filter ', 'tdws-order-tracking-system' ); ?></button>
+    							</div>
+							</div>
+						</form>
+					</div>
+					<?php
+				}
+				$result = new WP_Query( $t_args );
+				if ( $result-> have_posts() ) {
+					while ( $result->have_posts() ) { 
+						$result->the_post();
+						$post_id = get_the_ID();
+						$tdws_coupon_code = get_post_meta( $post_id, 'tdws_coupon_code', true );
+						$tdws_coupon_link = get_post_meta( $post_id, 'tdws_coupon_link', true );
+						$tdws_coupon_expiry_date = get_post_meta( $post_id, 'tdws_coupon_expiry_date', true );
+						$tdws_coupon_offer_highlight = get_post_meta( $post_id, 'tdws_coupon_offer_highlight', true );
+						$tdws_brand_logo = get_post_meta( $post_id, 'tdws_brand_logo', true );
+						$tdws_brand_name = get_post_meta( $post_id, 'tdws_brand_name', true );
+						?>
+						<div class="tdws-coupon-item <?php echo (!has_post_thumbnail( $post_id )) ? "no-coupon-img" : ""; ?>">
+
+							<?php 
+							if( $tdws_coupon_link ){
+								?>
+								<div class="tdws-coupon-link">
+									<a href="<?php echo esc_url( $tdws_coupon_link ); ?>" class="tdws-coupon-link-item" target="_blank">
+										<?php
+									}
+									if (has_post_thumbnail( $post_id ) ){ 
+										?>
+										<div class="tdws-coupon-img">
+											<?php 
+											echo wp_get_attachment_image( get_post_thumbnail_id( $post_id ), 'full' );
+											?>
+										</div>
+										<?php 
+									}
+									?>
+									<div class="tdws-coupon-info">
+										<div class="tdws-coupon-title-box">
+											<?php 
+											if( $tdws_brand_logo || $tdws_brand_name ){
+												?>
+												<div class="tdws-brand-box">
+													<?php 
+													if( $tdws_brand_logo ){
+														?>
+														<div class="tdws-brand-logo">
+															<?php echo wp_get_attachment_image( $tdws_brand_logo ); ?>
+														</div>
+														<?php
+													}
+													if( $tdws_brand_name ){
+														?>
+														<div class="tdws-brand-name">
+															<h4><?php echo esc_html( $tdws_brand_name ); ?></h4>
+														</div>
+														<?php
+													}
+													?>
+												</div>
+												<?php
+											}
+											?>									
+											<h3 class="tdws-coupon-title"><?php the_title(); ?></h3>
+											<?php 
+											if( $tdws_coupon_offer_highlight ){
+												?>
+												<div class="tdws-offer-highlight">
+													<?php echo $tdws_coupon_offer_highlight; ?>
+												</div>
+												<?php
+											}
+											if( $tdws_coupon_expiry_date ){
+												?>
+												<div class="tdws-coupon-date"><b><?php _e( 'Expiration Date: ', 'tdws-order-tracking-system' ); ?></b><?php echo esc_html( date( $tdws_date_format, strtotime( $tdws_coupon_expiry_date ) ) );  ?></h3></div>
+												<?php
+											}
+
+											?>
+
+										</div>
+										<?php 
+										if( $tdws_coupon_code ){
+											?>
+											<div class="tdws_coupon_code">
+												<h4><?php echo $tdws_coupon_code; ?></h4>
+											</div>
+											<?php    
+										}
+										?>
+									</div>
+									<?php 
+									if( $tdws_coupon_link ){
+										?>
+
+									</a>
+								</div>
+								<?php
+							}
+
+							?>
+						</div>
+						<?php
+					}
+				}else{
+					if( $show_pagination == 'yes' ){
+						?>
+						<div class="tdws-coupon-item no-coupon-available">
+							<?php esc_html_e( $no_coupon_data_message ); ?>
+						</div>
+						<?php
+					}	
+				} 
+				wp_reset_postdata(); 
+				if( $show_pagination == 'yes' ){
+
+					?>
+					<div class="tdws-coupon-pagination">
+						<?php
+						$big = 999999999; 
+						echo paginate_links( array(
+							'base' => esc_url( add_query_arg( 'pa', '%#%' ) ), 
+							'format' => '', 
+							'current' => max( 1, $paged ),
+							'total' => $result->max_num_pages
+						) );
+						?>
+					</div>
+					<?php
+				}
+				?>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Show TDWS Coupon List Thank you page
+	 *
+	 * @since    1.1.9
+	 */
+	public function tdws_show_coupon_list_thankyou_page( $order_id ){
+
+		$tdws_coupon_settings_opt = get_option( 'tdws_coupon_settings_opt' );
+		$default_thank_you_page_coupon_limit = apply_filters( 'tdws_thank_you_page_coupon_limit', 5 );
+		$default_thank_you_page_coupon_list_order = apply_filters( 'tdws_thank_you_page_coupon_list_order', 'ASC' );
+		$default_thank_you_page_coupon_list_order_by = apply_filters( 'tdws_thank_you_page_coupon_list_order_by', 'ID' );
+		$thank_you_page_coupon_limit = (isset($tdws_coupon_settings_opt['thank_you_page_coupon_limit']) && !empty($tdws_coupon_settings_opt['thank_you_page_coupon_limit'])) ? $tdws_coupon_settings_opt['thank_you_page_coupon_limit'] : $default_thank_you_page_coupon_limit;	
+		$thank_you_page_coupon_list_order = (isset($tdws_coupon_settings_opt['thank_you_page_coupon_list_order']) && !empty($tdws_coupon_settings_opt['thank_you_page_coupon_list_order'])) ? $tdws_coupon_settings_opt['thank_you_page_coupon_list_order'] : $default_thank_you_page_coupon_list_order;	
+		$thank_you_page_coupon_list_order_by = (isset($tdws_coupon_settings_opt['thank_you_page_coupon_list_order_by']) && !empty($tdws_coupon_settings_opt['thank_you_page_coupon_list_order_by'])) ? $tdws_coupon_settings_opt['thank_you_page_coupon_list_order_by'] : $default_thank_you_page_coupon_list_order_by;		
+
+		echo $this->tdws_coupon_list_html( $thank_you_page_coupon_limit, $thank_you_page_coupon_list_order, $thank_you_page_coupon_list_order_by );
 	}
 
 	/**

@@ -210,6 +210,7 @@ class Tdws_Order_Tracking_Automation {
 									if( $total_tracking == count($total_line_item) ){
 										$tdws_order->update_status( 'completed' ); 
 										update_post_meta( $deliveryTrackItem['order_id'], 'completed_status_via_17track_api', 'yes' );
+										twds_update_order_meta( $deliveryTrackItem['order_id'], 'completed_status_via_17track_api', 'yes' );
 									}
 								}	
 							}

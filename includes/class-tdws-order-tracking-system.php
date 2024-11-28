@@ -128,6 +128,11 @@ class Tdws_Order_Tracking_System {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-tdws-order-tracking-system-order-metabox.php';		
 
 		/**
+		 * The class responsible for defining all actions that occur in the tdws custom coupon.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-tdws-coupon-box.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
@@ -169,6 +174,7 @@ class Tdws_Order_Tracking_System {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		new Tdws_Order_Tracking_System_Order_MetaBox( $this->get_plugin_name(), $this->get_version() );
+		new Tdws_Coupon_Box( $this->get_plugin_name(), $this->get_version() );
 		new Tdws_Order_Tracking_Automation( $this->get_plugin_name(), $this->get_version() );
 
 	}

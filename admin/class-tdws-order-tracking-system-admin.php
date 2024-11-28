@@ -99,6 +99,9 @@ class Tdws_Order_Tracking_System_Admin {
 
 		// This hook manually added missing column or table
 		add_action( "wp_ajax_tdws_sync_tdws_tables", array( $this, "tdws_sync_tdws_tables" ) );
+
+		// Update Permalink
+		add_action( 'init', array( $this, 'tdws_update_flush_permalink' ), 999 );
 		
 	}
 
@@ -130,6 +133,12 @@ class Tdws_Order_Tracking_System_Admin {
 			wp_enqueue_style( 'wp-color-picker' );
 			wp_enqueue_style( 'woocommerce_admin_print_reports_styles' );
 		}
+
+		global $post;
+		
+		if( isset($post->post_type) && $post->post_type == 'tdws-coupon' ){			
+			wp_enqueue_style( 'jquery-ui-style' );
+		}
 		
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/tdws-order-tracking-system-admin.css', array(), $this->version, 'all' );
 		wp_enqueue_style( $this->plugin_name.'-tdws-popup', plugin_dir_url( __FILE__ ) . 'css/tdws-popup.css', array(), $this->version, 'all' );
@@ -154,6 +163,16 @@ class Tdws_Order_Tracking_System_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
+
+		global $post;
+		
+		if( isset($post->post_type) && $post->post_type == 'tdws-coupon' ){			
+			wp_enqueue_script( 'jquery-ui-datepicker' );
+		}
+
+		if ( ! did_action( 'wp_enqueue_media' ) ) {
+			wp_enqueue_media();
+		}
 		
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/tdws-order-tracking-system-admin.js', array( 'jquery' ), $this->version, false );
 		wp_localize_script( $this->plugin_name, 'tdwsAjax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce('tdws_form_save') ) );       
@@ -186,6 +205,9 @@ class Tdws_Order_Tracking_System_Admin {
 		add_submenu_page( 'tdws_order_tracking', __( '17TRACK API Setting', 'tdws-order-tracking-system' ), __( '17TRACK API Setting', 'tdws-order-tracking-system' ), 'administrator', '17track-api-setting', array( $this, 'tdws_17track_api_setting_page' ) );
 
 		add_submenu_page( 'tdws_order_tracking', __( 'Order Tracking Report', 'tdws-order-tracking-system' ), __( 'Order Tracking Report', 'tdws-order-tracking-system' ), 'administrator', 'tdws-order-tracking-report', array( $this, 'tdws_17track_report_setting_page' ) );
+
+		add_submenu_page( 'edit.php?post_type=tdws-coupon', __( 'Settings', 'tdws-order-tracking-system' ), __( 'Settings', 'tdws-order-tracking-system' ), 'administrator', 'tdws-order-tracking-report', array( $this, 'tdws_coupon_setting_page' ) );
+
 		
 		add_action( 'admin_init', array( $this, 'tdws_register_menu_option_page_setting' ) );
 
@@ -202,15 +224,37 @@ class Tdws_Order_Tracking_System_Admin {
 		//register plugin settings
 		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-generalData' ) ) {			
 			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_opt' );
-			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_mail' );		
+			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_mail' );	
+			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_reminder_mail' );								
 		}
 
 		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-apiData' ) ) {			
 			register_setting( 'tdws-order-tracking-setting', 'tdws_17track_opt' );
 		}
 
+		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-tdws-coupon' ) ) {	
+			register_setting( 'tdws-coupon-setting', 'tdws_coupon_settings_opt' );
+		}
+
 	}
 
+	/**
+	 * Flush Permalink
+	 *
+	 * @since    1.1.9
+	 */
+
+	public function tdws_update_flush_permalink(){
+		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-tdws-coupon' ) ) {	
+			flush_rewrite_rules(); 
+		}
+	}
+
+	/**
+	 * Make option setting page.
+	 *
+	 * @since    1.0.0
+	 */
 	/**
 	 * Make option setting page.
 	 *
@@ -221,10 +265,15 @@ class Tdws_Order_Tracking_System_Admin {
 		$add_order_tags = tdws_get_order_tages();
 		$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );		
 		$tdws_ord_track_mail = get_option( 'tdws_ord_track_mail' );		
+		$tdws_ord_reminder_mail = get_option( 'tdws_ord_reminder_mail' );		
 		$default_tag_name = apply_filters( 'set_default_tdws_tag_name', 'New' );
 		$default_track_subject = apply_filters( 'tdws_order_tracking_mail_subject', 'Order Tracking' );
 		$default_track_heading = apply_filters( 'tdws_order_tracking_mail_email_heading', 'Order Tracking' );
 		$default_track_email_top = apply_filters( 'tdws_order_tracking_mail_before_item_html', 'Hii [first_name]' );
+
+		$default_reminder_subject = apply_filters( 'tdws_order_reminder_mail_subject', 'Order Reminder' );
+		$default_reminder_heading = apply_filters( 'tdws_order_reminder_mail_email_heading', 'Order Reminder' );
+		$default_reminder_email_top = apply_filters( 'tdws_order_reminder_mail_before_item_html', 'Hii [first_name]' );
 
 		$set_default_order_tag = isset($tdws_ord_track_opt['set_default_order_tag']) ? $tdws_ord_track_opt['set_default_order_tag'] : $default_tag_name;
 		$order_tag_colour = isset($tdws_ord_track_opt['order_tag_colour']) ? $tdws_ord_track_opt['order_tag_colour'] : '';
@@ -233,6 +282,24 @@ class Tdws_Order_Tracking_System_Admin {
 		$tdws_track_email_heading = isset($tdws_ord_track_mail['email_heading']) ? $tdws_ord_track_mail['email_heading'] : $default_track_heading;		
 		$tdws_track_email_top = isset($tdws_ord_track_mail['email_top_html']) ? $tdws_ord_track_mail['email_top_html'] : $default_track_email_top;
 		$tdws_track_email_bottom = isset($tdws_ord_track_mail['email_bottom_html']) ? $tdws_ord_track_mail['email_bottom_html'] : '';
+		$auto_completed_reminder_day = isset($tdws_ord_reminder_mail['auto_completed_reminder_day']) ? $tdws_ord_reminder_mail['auto_completed_reminder_day'] : '';
+		$auto_completed_finish_day = isset($tdws_ord_reminder_mail['auto_completed_finish_day']) ? $tdws_ord_reminder_mail['auto_completed_finish_day'] : '';
+		$auto_completed_reminder_after_html = isset($tdws_ord_reminder_mail['auto_completed_reminder_after_html']) ? $tdws_ord_reminder_mail['auto_completed_reminder_after_html'] : '';
+		$auto_completed_reminder_before_html = isset($tdws_ord_reminder_mail['auto_completed_reminder_before_html']) ? $tdws_ord_reminder_mail['auto_completed_reminder_before_html'] : $default_reminder_email_top;
+		$auto_completed_reminder_heading = isset($tdws_ord_reminder_mail['auto_completed_reminder_heading']) ? $tdws_ord_reminder_mail['auto_completed_reminder_heading'] : $default_reminder_heading;
+		$auto_completed_reminder_subject = isset($tdws_ord_reminder_mail['auto_completed_reminder_subject']) ? $tdws_ord_reminder_mail['auto_completed_reminder_subject'] : $default_reminder_subject;
+		$tdws_auto_completed_status_enable = isset($tdws_ord_reminder_mail['auto_completed_status_enable']) ? $tdws_ord_reminder_mail['auto_completed_status_enable'] : '';
+		$tdws_auto_completed_status = isset($tdws_ord_reminder_mail['auto_completed_status']) ? $tdws_ord_reminder_mail['auto_completed_status'] : array();
+		if( empty($tdws_auto_completed_status) ){
+			$tdws_auto_completed_status = array();
+		}
+		
+		$tdws_date_format = (get_option('date_format')) ? get_option('date_format') : 'd/m/Y';			
+		$tdws_time_format = (get_option('time_format')) ? get_option('time_format') : 'H:i:s';		
+
+		$tdws_auto_completed_reminder_mail_set_cron = get_option( 'tdws_auto_completed_reminder_mail_set_cron' );
+		$tdws_auto_completed_reminder_finish_cron = get_option( 'tdws_auto_completed_reminder_finish_cron' );
+
 		?>
 		<div class="wrap tdws-form-wrap">
 			<h1><?php esc_html_e( 'TDWS Order Tracking System', 'tdws-order-tracking-system' ); ?></h1>
@@ -282,7 +349,7 @@ class Tdws_Order_Tracking_System_Admin {
 							<tr valign="top">
 								<th scope="row">
 									<?php esc_html_e( 'Order Tracking Email Before Items HTML', 'tdws-order-tracking-system' ); ?>
-									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]' ); ?> )</h6>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]', 'tdws-order-tracking-system' ); ?> )</h6>
 								</th>
 								<td>
 									<?php 																
@@ -293,7 +360,7 @@ class Tdws_Order_Tracking_System_Admin {
 							<tr valign="top">
 								<th scope="row">
 									<?php esc_html_e( 'Order Tracking Email After Items HTML', 'tdws-order-tracking-system' ); ?>
-									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]' ); ?> )</h6>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]', 'tdws-order-tracking-system' ); ?> )</h6>
 								</th>
 								<td>
 									<?php 																
@@ -301,7 +368,122 @@ class Tdws_Order_Tracking_System_Admin {
 									?>
 								</td>
 							</tr>	
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Enable Auto Completed Order Reminder System', 'tdws-order-tracking-system' ); ?>
+								</th>
+								<td>
+									<label class="tdws-main-label">
+										<input type="checkbox" name="tdws_ord_reminder_mail[auto_completed_status_enable]" <?php checked( $tdws_auto_completed_status_enable, 'Yes' ); ?> class="tdws_auto_completed_status_enable" value="Yes" />
+										<span class="tdws-slider tdws-round"></span>
+									</label>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Order Auto Completed Which Status', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Here you can select order status which you want to auto completed via reminder', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<select name="tdws_ord_reminder_mail[auto_completed_status][]" class="tdws_auto_completed_status" multiple data-placeholder="<?php esc_html_e( 'Please Select Order Status which Auto Completed', 'tdws-order-tracking-system' ); ?>">
+										<option value=""><?php esc_html_e( 'Select Status', 'tdws-order-tracking-system' ); ?></option>
+										<?php 
+										$order_statuses = wc_get_order_statuses();
+										foreach ( $order_statuses as $status_key => $status_label ) {
+											$selected_string = '';
+											if( is_array($tdws_auto_completed_status) && count($tdws_auto_completed_status) > 0 && in_array( $status_key, $tdws_auto_completed_status ) ){
+												$selected_string = 'selected="selected"';
+											}
+											?>
+											<option value="<?php echo esc_attr( $status_key ); ?>" <?php echo esc_attr( $selected_string ); ?>><?php esc_html_e( $status_label  ); ?></option>
+											<?php
+										}
+										?>
+									</select>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Auto Completed Order Reminder Day', 'tdws-order-tracking-system' ); ?>
+								</th>
+								<td><input type="number" placeholder="<?php esc_html_e( 'Please Enter Auto Completed Order Reminder Day', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_reminder_mail[auto_completed_reminder_day]" value="<?php echo esc_attr( $auto_completed_reminder_day ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Auto Completed Order Finish Day', 'tdws-order-tracking-system' ); ?>
+								</th>
+								<td><input type="number" placeholder="<?php esc_html_e( 'Please Enter Auto Completed Order Finish Day', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_reminder_mail[auto_completed_finish_day]" value="<?php echo esc_attr( $auto_completed_finish_day ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Auto Completed Order Reminder Subject', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass order id in email heading using [order_id]' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Auto Completed Order Reminder Subject', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_reminder_mail[auto_completed_reminder_subject]" value="<?php echo esc_attr( $auto_completed_reminder_subject ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Auto Completed Order Reminder Email Heading', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass order id in email heading using [order_id]' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Auto Completed Order Reminder Email Heading', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_reminder_mail[auto_completed_reminder_heading]" value="<?php echo esc_attr( $auto_completed_reminder_heading ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Auto Completed Order Reminder Before Items HTML', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<?php 																
+									wp_editor( $auto_completed_reminder_before_html, 'auto_completed_reminder_before_html', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_reminder_mail[auto_completed_reminder_before_html]', 'wpautop' => false ) );
+									?>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Auto Completed Order Reminder After Items HTML', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<?php 																
+									wp_editor( $auto_completed_reminder_after_html, 'auto_completed_reminder_after_html', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_reminder_mail[auto_completed_reminder_after_html]', 'wpautop' => false ) );
+									?>
+								</td>
+							</tr>
+							<tr valign="top" class="tdws-subject-tr" >
+								<th scope="row">
+									<?php esc_html_e( 'Use This Cron Auto Completed Reminder Mail For Order Set Daily Twice', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please Set This Cron Auto Completed Reminder Mail For Order Set Daily Twice', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<input type="text" class="tdws-full-width" readonly value="<?php echo site_url('wp-admin/admin-ajax.php?action=tdws_auto_completed_reminder_set_mail_cron'); ?>" />
+									<?php 
+									if( $tdws_auto_completed_reminder_mail_set_cron ){
+										?>
+										<h3 class="tdws-cron-info"><?php esc_html_e( 'Last Cron Run Date & Time :', 'tdws-order-tracking-system' ); ?> <?php echo esc_html( date( $tdws_date_format.' '.$tdws_time_format, strtotime( $tdws_auto_completed_reminder_mail_set_cron ) ) ); ?></h3>
 
+										<?php	
+									}
+									?>
+								</td>
+							</tr>	
+							<tr valign="top" class="tdws-subject-tr" >
+								<th scope="row">
+									<?php esc_html_e( 'Use This Cron Auto Completed Reminder Finish Order Set Daily Twice', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please Set This Cron Auto Completed Reminder Finish Order Set Daily Twice', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<input type="text" class="tdws-full-width" readonly value="<?php echo site_url('wp-admin/admin-ajax.php?action=tdws_auto_completed_reminder_finish_cron'); ?>" />
+									<?php 
+									if( $tdws_auto_completed_reminder_finish_cron ){
+										?>
+										<h3 class="tdws-cron-info"><?php esc_html_e( 'Last Cron Run Date & Time :', 'tdws-order-tracking-system' ); ?> <?php echo esc_html( date( $tdws_date_format.' '.$tdws_time_format, strtotime( $tdws_auto_completed_reminder_finish_cron ) ) ); ?></h3>
+										
+										<?php	
+									}
+									?>
+								</td>
+							</tr>
 						</tbody>
 						<tfoot>
 							<tr>
@@ -502,6 +684,110 @@ class Tdws_Order_Tracking_System_Admin {
 				</div>
 				
 			</div>
+		</div>
+		<?php 
+	}
+
+	/**
+	 * Make TDWS COUPON setting page.
+	 *
+	 * @since    1.4.0
+	 */
+	public function tdws_coupon_setting_page() {
+		$tdws_coupon_settings_opt = get_option( 'tdws_coupon_settings_opt' );
+		$default_thank_you_page_coupon_limit = apply_filters( 'tdws_thank_you_page_coupon_limit', 5 );
+		$default_thank_you_page_coupon_list_order = apply_filters( 'tdws_thank_you_page_coupon_list_order', 'ASC' );
+		$default_thank_you_page_coupon_list_order_by = apply_filters( 'tdws_thank_you_page_coupon_list_order_by', 'ID' );
+		$default_my_account_page_coupon_per_page = apply_filters( 'tdws_my_account_page_coupon_per_page', 5 );
+		$default_my_account_page_coupon_list_order = apply_filters( 'tdws_my_account_page_coupon_list_order', 'ASC' );
+		$default_my_account_page_coupon_list_order_by = apply_filters( 'tdws_my_account_page_coupon_list_order_by', 'ID' );
+		$default_my_account_page_no_coupon_data_message = apply_filters( 'tdws_my_account_page_no_coupon_data_message', 'No Deals Available' );
+		$default_my_account_page_coupon_tab_title = apply_filters( 'tdws_my_account_page_coupon_tab_title', 'My Rewards' );
+		$default_my_account_page_coupon_filter_label = apply_filters( 'tdws_my_account_page_coupon_filter_label', 'Your Interests:' );
+		$default_my_account_page_coupon_filter_placeholder = apply_filters( 'tdws_my_account_page_coupon_filter_placeholder', 'Select Interests' );
+		$default_my_account_page_coupon_tab_url = apply_filters( 'tdws_my_account_page_coupon_tab_title', 'tdws-my-rewards-list' );
+		
+		$thank_you_page_coupon_limit = (isset($tdws_coupon_settings_opt['thank_you_page_coupon_limit']) && !empty($tdws_coupon_settings_opt['thank_you_page_coupon_limit'])) ? $tdws_coupon_settings_opt['thank_you_page_coupon_limit'] : $default_thank_you_page_coupon_limit;	
+		$thank_you_page_coupon_list_order = (isset($tdws_coupon_settings_opt['thank_you_page_coupon_list_order']) && !empty($tdws_coupon_settings_opt['thank_you_page_coupon_list_order'])) ? $tdws_coupon_settings_opt['thank_you_page_coupon_list_order'] : $default_thank_you_page_coupon_list_order;	
+		$thank_you_page_coupon_list_order_by = (isset($tdws_coupon_settings_opt['thank_you_page_coupon_list_order_by']) && !empty($tdws_coupon_settings_opt['thank_you_page_coupon_list_order_by'])) ? $tdws_coupon_settings_opt['thank_you_page_coupon_list_order_by'] : $default_thank_you_page_coupon_list_order_by;
+		$my_account_page_coupon_per_page = (isset($tdws_coupon_settings_opt['my_account_page_coupon_per_page']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_per_page'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_per_page'] : $default_my_account_page_coupon_per_page;	
+		$my_account_page_coupon_tab_title = (isset($tdws_coupon_settings_opt['my_account_page_coupon_tab_title']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_tab_title'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_tab_title'] : $default_my_account_page_coupon_tab_title;	
+		$my_account_page_coupon_tab_url = (isset($tdws_coupon_settings_opt['my_account_page_coupon_tab_url']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_tab_url'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_tab_url'] : $default_my_account_page_coupon_tab_url;	
+
+		$my_account_page_coupon_filter_label = (isset($tdws_coupon_settings_opt['my_account_page_coupon_filter_label']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_filter_label'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_filter_label'] : $default_my_account_page_coupon_filter_label;	
+
+		$my_account_page_coupon_filter_placeholder = (isset($tdws_coupon_settings_opt['my_account_page_coupon_filter_placeholder']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_filter_placeholder'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_filter_placeholder'] : $default_my_account_page_coupon_filter_placeholder;	
+		
+		$my_account_page_coupon_list_order = (isset($tdws_coupon_settings_opt['my_account_page_coupon_list_order']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_list_order'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_list_order'] : $default_my_account_page_coupon_list_order;	
+		$my_account_page_coupon_list_order_by = (isset($tdws_coupon_settings_opt['my_account_page_coupon_list_order_by']) && !empty($tdws_coupon_settings_opt['my_account_page_coupon_list_order_by'])) ? $tdws_coupon_settings_opt['my_account_page_coupon_list_order_by'] : $default_my_account_page_coupon_list_order_by;	
+		$my_account_page_no_coupon_data_message = (isset($tdws_coupon_settings_opt['my_account_page_no_coupon_data_message']) && !empty($tdws_coupon_settings_opt['my_account_page_no_coupon_data_message'])) ? $tdws_coupon_settings_opt['my_account_page_no_coupon_data_message'] : $default_my_account_page_no_coupon_data_message;		
+		
+		?>
+		<div class="wrap tdws-form-wrap">
+			<h1><?php esc_html_e( 'TDWS Coupon Setting', 'tdws-order-tracking-system' ); ?></h1>
+			<form method="post" action="options.php">
+				<?php settings_fields( 'tdws-coupon-setting' ); ?>
+				<?php do_settings_sections( 'tdws-coupon-setting' ); ?>
+				<div class="tdws-form-section">
+					<table class="tdws-form-table" width="100%" border="1" cellpadding="10" cellspacing="10">
+						<tbody>						
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Thank You Page Coupon Limit', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="number" placeholder="<?php esc_html_e( 'Please Thank You Page Coupon Limit', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[thank_you_page_coupon_limit]" value="<?php echo esc_attr( $thank_you_page_coupon_limit ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Thank You Page Coupon List Order', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Page Coupon List Order', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[thank_you_page_coupon_list_order]" value="<?php echo esc_attr( $thank_you_page_coupon_list_order ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'Thank You Page Coupon List Order By', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Page Coupon List Order', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[thank_you_page_coupon_list_order_by]" value="<?php echo esc_attr( $thank_you_page_coupon_list_order_by ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page Coupon Tab Title', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Page Coupon Tab Title', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_coupon_tab_title]" value="<?php echo esc_attr( $my_account_page_coupon_tab_title ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page Coupon Tab URL', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Page Coupon Tab URL', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_coupon_tab_url]" value="<?php echo esc_attr( $my_account_page_coupon_tab_url ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page Coupon Per Page', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="number" placeholder="<?php esc_html_e( 'Please My Account Page Coupon Per Page', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_coupon_per_page]" value="<?php echo esc_attr( $my_account_page_coupon_per_page ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page Coupon Filter Label', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please My Account Page Coupon Filter Label', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_coupon_filter_label]" value="<?php echo esc_attr( $my_account_page_coupon_filter_label ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page Coupon Filter Placeholder', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please My Account Page Coupon Filter Placeholder', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_coupon_filter_placeholder]" value="<?php echo esc_attr( $my_account_page_coupon_filter_placeholder ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page Coupon List Order', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Page Coupon List Order', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_coupon_list_order]" value="<?php echo esc_attr( $my_account_page_coupon_list_order ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page Coupon List Order By', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Page Coupon List Order', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_coupon_list_order_by]" value="<?php echo esc_attr( $my_account_page_coupon_list_order_by ); ?>" /></td>
+							</tr>	
+							<tr valign="top">
+								<th scope="row"><?php esc_html_e( 'My Account Page No Coupon Data Message', 'tdws-order-tracking-system' ); ?></th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Page No Coupon Data Message', 'tdws-order-tracking-system' ); ?>" name="tdws_coupon_settings_opt[my_account_page_no_coupon_data_message]" value="<?php echo esc_attr( $my_account_page_no_coupon_data_message ); ?>" /></td>
+							</tr>	
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="2">
+									<?php wp_nonce_field( $this->plugin_name.'-tdws-coupon', 'tdwsformType' ); ?>
+									<?php submit_button(); ?>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>			
+			</form>
+
 		</div>
 		<?php 
 	}

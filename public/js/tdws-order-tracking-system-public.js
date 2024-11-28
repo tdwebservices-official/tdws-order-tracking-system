@@ -53,6 +53,24 @@
 		
 	});
 
+	$(document).on('click', '.tdws_coupon_code h4', function(event) {
+		var sampleTextarea = document.createElement("textarea");
+		document.body.appendChild(sampleTextarea);
+		event.preventDefault();
+		sampleTextarea.value = $(this).text();
+		sampleTextarea.select();
+		document.execCommand("copy");
+		document.body.removeChild(sampleTextarea);
+		var t_this = jQuery(this);
+		t_this.addClass('active');
+		if( t_this.closest('.tdws-coupon-link-item').length > 0 ){
+			window.open( t_this.closest('.tdws-coupon-link-item').attr('href'), "_blank" );
+		}
+		setTimeout(function () {
+			t_this.removeClass('active');
+		}, 800);
+	});
+
 	// TDWS Popup Hide Outside Div Click
 	jQuery(document).mouseup(function(e){
 		var container = jQuery(".tdws-popup-wrapper");    
@@ -65,6 +83,13 @@
 	jQuery(document).on( 'click', '.tdws-close', function(e) {
 		jQuery('.tdws-popup,body').removeClass('tdws-model-open');
 	});
+
+	// TDWS Coupon Filter
+	setTimeout(function(){
+	    if( jQuery('.tdws-coupon-filter .coupon_interest').length > 0 ){
+    	    jQuery('.tdws-coupon-filter .coupon_interest').select2({ 'placeholder' : jQuery('.tdws-coupon-filter .coupon_interest').attr( 'data-placeholder' ) });    
+    	}
+    },500);
 
 
 })( jQuery );
