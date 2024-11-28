@@ -65,6 +65,14 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 		add_action( "wp_ajax_".$this->plugin_name."_re_tracking", array( $this, "tdws_plugin_system_re_tracking" ) );
 		add_action( "wp_ajax_nopriv_".$this->plugin_name."_re_tracking", array( $this, "tdws_plugin_system_re_tracking" ) );
 
+		// reminder auto completed order set mail cron 
+		add_action( "wp_ajax_tdws_auto_completed_reminder_set_mail_cron", array( $this, "tdws_auto_completed_reminder_set_mail_cron" ) );
+		add_action( "wp_ajax_nopriv_tdws_auto_completed_reminder_set_mail_cron", array( $this, "tdws_auto_completed_reminder_set_mail_cron" ) );
+
+		// reminder auto completed order finish cron 
+		add_action( "wp_ajax_tdws_auto_completed_reminder_finish_cron", array( $this, "tdws_auto_completed_reminder_finish_cron" ) );
+		add_action( "wp_ajax_nopriv_tdws_auto_completed_reminder_finish_cron", array( $this, "tdws_auto_completed_reminder_finish_cron" ) );
+
 		// add some popup in admin footer
 		add_action( 'admin_footer', array( $this, 'tdws_add_extra_popup_in_footer' ) );
 
@@ -542,6 +550,169 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 			
 		}		
 		wp_send_json( $data_response );
+	}
+
+	/**
+	 * Auto Completed Reminder Set Mail Cron
+	 *
+	 * @since    1.9.0
+	 */
+	public function tdws_auto_completed_reminder_set_mail_cron(){
+
+		$tdws_ord_reminder_mail = get_option( 'tdws_ord_reminder_mail' );		
+		$auto_completed_reminder_day = isset($tdws_ord_reminder_mail['auto_completed_reminder_day']) ? $tdws_ord_reminder_mail['auto_completed_reminder_day'] : '';
+		$auto_completed_finish_day = isset($tdws_ord_reminder_mail['auto_completed_finish_day']) ? $tdws_ord_reminder_mail['auto_completed_finish_day'] : '';
+		$tdws_auto_completed_status_enable = isset($tdws_ord_reminder_mail['auto_completed_status_enable']) ? $tdws_ord_reminder_mail['auto_completed_status_enable'] : '';
+		$tdws_auto_completed_status = isset($tdws_ord_reminder_mail['auto_completed_status']) ? $tdws_ord_reminder_mail['auto_completed_status'] : array();
+
+		$default_reminder_subject = apply_filters( 'tdws_order_reminder_mail_subject', 'Order Reminder' );
+		$default_reminder_heading = apply_filters( 'tdws_order_reminder_mail_email_heading', 'Order Reminder' );
+		$default_reminder_email_top = apply_filters( 'tdws_order_reminder_mail_before_item_html', 'Hii [first_name]' );
+
+		$auto_completed_reminder_after_html = isset($tdws_ord_reminder_mail['auto_completed_reminder_after_html']) ? $tdws_ord_reminder_mail['auto_completed_reminder_after_html'] : '';
+		$auto_completed_reminder_before_html = isset($tdws_ord_reminder_mail['auto_completed_reminder_before_html']) ? $tdws_ord_reminder_mail['auto_completed_reminder_before_html'] : $default_reminder_email_top;
+		$auto_completed_reminder_heading = isset($tdws_ord_reminder_mail['auto_completed_reminder_heading']) ? $tdws_ord_reminder_mail['auto_completed_reminder_heading'] : $default_reminder_heading;
+		$auto_completed_reminder_subject = isset($tdws_ord_reminder_mail['auto_completed_reminder_subject']) ? $tdws_ord_reminder_mail['auto_completed_reminder_subject'] : $default_reminder_subject;
+
+		if( empty($tdws_auto_completed_status) ){
+			$tdws_auto_completed_status = array();
+		}
+		if( $tdws_auto_completed_status_enable != 'Yes' ){
+			return false;
+		}
+		tdws_set_timezone();
+		$tdws_current_date = date( 'Y-m-d' );
+		$tdws_reminder_date = date( 'Y-m-d', strtotime('-'.$auto_completed_reminder_day.' days' ) );
+		
+		$args = array(
+			'post_type' => array( 'shop_order','shop_order_placehold' ),
+			'posts_per_page' => -1,  
+			'orderby'         => 'date',
+			'order'           => 'DESC', 
+			'post_status' => $tdws_auto_completed_status,
+			'date_created' => '<='. $tdws_reminder_date,
+			'meta_query'      => array(				
+				array(
+					'key'     => '_tdws_reminder_set',
+					'compare' => 'NOT EXISTS',   
+				),
+			),
+		);
+
+		$orders = wc_get_orders( $args );
+
+		if( is_array( $orders ) && count($orders) > 0 ){
+			foreach ( $orders as $order_post ) {
+				
+				// Add Order Meta Reminder System 
+				$order_id = $order_post->ID;
+				$order = wc_get_order( $order_id );
+				$email  = $order->get_billing_email();
+				$items = $order->get_items( 'line_item' );
+
+				$auto_completed_reminder_subject = str_replace( '[order_id]', $order_id, $auto_completed_reminder_subject );
+				$auto_completed_reminder_heading = str_replace( '[order_id]', $order_id, $auto_completed_reminder_heading );
+				$auto_completed_reminder_before_html = str_replace( '[first_name]', $order->get_billing_first_name(), $auto_completed_reminder_before_html );
+				$auto_completed_reminder_before_html = str_replace( '[last_name]', $order->get_billing_last_name(), $auto_completed_reminder_before_html );
+				$auto_completed_reminder_before_html = str_replace( '[email]', $order->get_billing_email(), $auto_completed_reminder_before_html );
+				$auto_completed_reminder_before_html = str_replace( '[order_id]', $order_id, $auto_completed_reminder_before_html );
+
+				$auto_completed_reminder_after_html = str_replace( '[first_name]', $order->get_billing_first_name(), $auto_completed_reminder_after_html );
+				$auto_completed_reminder_after_html = str_replace( '[last_name]', $order->get_billing_last_name(), $auto_completed_reminder_after_html );
+				$auto_completed_reminder_after_html = str_replace( '[email]', $order->get_billing_email(), $auto_completed_reminder_after_html );
+				$auto_completed_reminder_after_html = str_replace( '[order_id]', $order_id, $auto_completed_reminder_after_html );
+
+				$email_heading  = $auto_completed_reminder_heading;
+				$show_sku =  apply_filters( 'tdws_order_tracking_product_mail_show_sku', true );
+				$show_image =  apply_filters( 'tdws_order_tracking_product_mail_show_img', true );
+				$image_size =  apply_filters( 'tdws_order_tracking_product_mail_image_size', array( 64, 64 ) );
+				$css = $html = '';
+				ob_start();
+				include plugin_dir_path(dirname( __DIR__ )).'admin/templates/emails/tdws-email-normal-template.php';
+				$html = ob_get_clean();
+				ob_start();
+				wc_get_template( 'emails/email-styles.php' );
+				$css = ob_get_clean();
+				$content = '<style type="text/css">' . $css . '</style>' . $html;
+				$mailFlag = tdws_custom_send_mail( $email, $auto_completed_reminder_subject, $content, array() );
+
+				if( $mailFlag ){
+					update_post_meta( $order_id, 'tdws_reminder_mail', 'yes' );
+					twds_update_order_meta( $order_id, 'tdws_reminder_mail', 'yes' );
+				}else{
+					update_post_meta( $order_id, 'tdws_reminder_mail', 'no' );
+					twds_update_order_meta( $order_id, 'tdws_reminder_mail', 'no' );
+				}
+				update_post_meta( $order_id, '_tdws_reminder_set', 'yes'  );
+				twds_update_order_meta( $order_id, '_tdws_reminder_set', 'yes' );
+			}
+		}
+
+		update_option( 'tdws_auto_completed_reminder_mail_set_cron', date('Y-m-d H:i:s') );
+		wp_die('done');
+
+		die;
+	}
+
+	/**
+	 * Auto Completed Reminder Finish Cron
+	 *
+	 * @since    1.9.0
+	 */
+	public function tdws_auto_completed_reminder_finish_cron(){
+
+		$tdws_ord_reminder_mail = get_option( 'tdws_ord_reminder_mail' );		
+		$auto_completed_reminder_day = isset($tdws_ord_reminder_mail['auto_completed_reminder_day']) ? $tdws_ord_reminder_mail['auto_completed_reminder_day'] : '';
+		$auto_completed_finish_day = isset($tdws_ord_reminder_mail['auto_completed_finish_day']) ? $tdws_ord_reminder_mail['auto_completed_finish_day'] : '';
+		$tdws_auto_completed_status_enable = isset($tdws_ord_reminder_mail['auto_completed_status_enable']) ? $tdws_ord_reminder_mail['auto_completed_status_enable'] : '';
+		$tdws_auto_completed_status = isset($tdws_ord_reminder_mail['auto_completed_status']) ? $tdws_ord_reminder_mail['auto_completed_status'] : array();
+
+		if( empty($tdws_auto_completed_status) ){
+			$tdws_auto_completed_status = array();
+		}
+		if( $tdws_auto_completed_status_enable != 'Yes' ){
+			return false;
+		}
+		tdws_set_timezone();
+		$tdws_current_date = date( 'Y-m-d H:i:s' );
+		$tdws_reminder_date = date( 'Y-m-d', strtotime('-'.$auto_completed_finish_day.' days' ) );
+		$args = array(
+			'post_type' => array( 'shop_order','shop_order_placehold' ),
+			'posts_per_page' => -1,  
+			'orderby'         => 'date',
+			'order'           => 'DESC', 
+			'post_status' => $tdws_auto_completed_status,
+			'date_created' => '<='.$tdws_reminder_date,
+			'meta_query'      => array(				
+				array(
+					'key'     => '_tdws_reminder_set',
+					'compare' => '=',
+					'value' => 'yes'   
+				),
+			),
+		);
+
+		global $wpdb;	
+		$table_name = $wpdb->base_prefix.'tdws_order_tracking_status';
+		$table2_name = $wpdb->base_prefix.'tdws_order_tracking';
+
+		$orders = wc_get_orders( $args );
+		if( is_array( $orders ) && count($orders) > 0 ){
+			foreach ( $orders as $order_post ) {				
+				$order_id = $order_post->ID;			
+				$order = wc_get_order( $order_id );
+				$order->update_status( 'completed' ); 
+				update_post_meta( $order_id, 'tdws_reminder_finish', 'yes' );
+				twds_update_order_meta( $order_id, 'tdws_reminder_finish', 'yes' );
+				$wpdb->query( $wpdb->prepare( "UPDATE $table2_name SET tracking_status = 1, update_date = %s WHERE order_id = %d", $tdws_current_date, $order_id ) );
+				$wpdb->query( $wpdb->prepare( "UPDATE $table_name SET status = 1, update_date = %s WHERE order_id = %d", $tdws_current_date, $order_id ) );
+
+			}
+		}
+
+		update_option( 'tdws_auto_completed_reminder_finish_cron', date('Y-m-d H:i:s') );
+		wp_die('done');
+
 	}
 
 	/**
