@@ -206,9 +206,8 @@ class Tdws_Order_Tracking_System_Admin {
 
 		add_submenu_page( 'tdws_order_tracking', __( 'Order Tracking Report', 'tdws-order-tracking-system' ), __( 'Order Tracking Report', 'tdws-order-tracking-system' ), 'administrator', 'tdws-order-tracking-report', array( $this, 'tdws_17track_report_setting_page' ) );
 
-		add_submenu_page( 'edit.php?post_type=tdws-coupon', __( 'Settings', 'tdws-order-tracking-system' ), __( 'Settings', 'tdws-order-tracking-system' ), 'administrator', 'tdws-order-tracking-report', array( $this, 'tdws_coupon_setting_page' ) );
+		add_submenu_page( 'edit.php?post_type=tdws-coupon', __( 'Settings', 'tdws-order-tracking-system' ), __( 'Settings', 'tdws-order-tracking-system' ), 'administrator', 'tdws-coupon-setting', array( $this, 'tdws_coupon_setting_page' ) );
 
-		
 		add_action( 'admin_init', array( $this, 'tdws_register_menu_option_page_setting' ) );
 
 	}
