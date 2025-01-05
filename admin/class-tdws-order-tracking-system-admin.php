@@ -269,6 +269,7 @@ class Tdws_Order_Tracking_System_Admin {
 		$default_track_subject = apply_filters( 'tdws_order_tracking_mail_subject', 'Order Tracking' );
 		$default_track_heading = apply_filters( 'tdws_order_tracking_mail_email_heading', 'Order Tracking' );
 		$default_track_email_top = apply_filters( 'tdws_order_tracking_mail_before_item_html', 'Hii [first_name]' );
+		$default_product_review_tab_id = apply_filters( 'tdws_product_review_tab_id', 'tab-reviews' );
 
 		$default_reminder_subject = apply_filters( 'tdws_order_reminder_mail_subject', 'Order Reminder' );
 		$default_reminder_heading = apply_filters( 'tdws_order_reminder_mail_email_heading', 'Order Reminder' );
@@ -280,6 +281,7 @@ class Tdws_Order_Tracking_System_Admin {
 		$tdws_track_subject = isset($tdws_ord_track_mail['subject']) ? $tdws_ord_track_mail['subject'] : $default_track_subject;
 		$tdws_track_email_heading = isset($tdws_ord_track_mail['email_heading']) ? $tdws_ord_track_mail['email_heading'] : $default_track_heading;		
 		$tdws_track_email_top = isset($tdws_ord_track_mail['email_top_html']) ? $tdws_ord_track_mail['email_top_html'] : $default_track_email_top;
+		$tdws_product_review_tab_id = isset($tdws_ord_track_opt['product_review_tab_id']) ? $tdws_ord_track_opt['product_review_tab_id'] : $default_product_review_tab_id;
 		$tdws_track_email_bottom = isset($tdws_ord_track_mail['email_bottom_html']) ? $tdws_ord_track_mail['email_bottom_html'] : '';
 		$auto_completed_reminder_day = isset($tdws_ord_reminder_mail['auto_completed_reminder_day']) ? $tdws_ord_reminder_mail['auto_completed_reminder_day'] : '';
 		$auto_completed_finish_day = isset($tdws_ord_reminder_mail['auto_completed_finish_day']) ? $tdws_ord_reminder_mail['auto_completed_finish_day'] : '';
@@ -330,6 +332,13 @@ class Tdws_Order_Tracking_System_Admin {
 									<h6>( <?php esc_html_e( 'Please add colour which you have enter tag text show default #fff', 'tdws-order-tracking-system' ); ?> )</h6>
 								</th>
 								<td><input type="text" placeholder="<?php esc_html_e( 'Please Tag Text Colour', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[tag_text_colour]" value="<?php echo esc_attr( $tag_text_colour ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Product Review Tab ID', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please add Product Review Tab ID default #tab-reviews', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Product Review Tab ID', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_track_opt[product_review_tab_id]" value="<?php echo esc_attr( $tdws_product_review_tab_id ); ?>" /></td>
 							</tr>
 							<tr valign="top">
 								<th scope="row">

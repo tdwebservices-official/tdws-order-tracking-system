@@ -422,6 +422,18 @@ class Tdws_Order_Tracking_System_Public {
 	 * @since    1.1.0
 	 */
 	public function tdws_show_tracking_info_view_order( $item_id, $item, $order, $plain_text ){
+		if( is_object($item) && $item->get_product_id() ){
+
+			$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );		
+			$default_product_review_tab_id = apply_filters( 'tdws_product_review_tab_id', 'tab-reviews' );
+			$tdws_product_review_tab_id = isset($tdws_ord_track_opt['product_review_tab_id']) ? $tdws_ord_track_opt['product_review_tab_id'] : $default_product_review_tab_id;
+
+			?>
+			<div class="tdws-write-a-review-box">
+				<a href="<?php echo get_the_permalink( $item->get_product_id() ); ?>#<?php echo esc_attr($tdws_product_review_tab_id); ?>" class="button tdws-button-review"><?php _e( 'Write a product review', 'tdws-order-tracking-system' ); ?></a>
+			</div>
+			<?php
+		}
 		$tracking_item_list = twds_tracking_data_by_item_id( $item_id, 1 );		
 		global $post;
 		if ( is_a( $post, 'WP_Post' ) && !has_shortcode( $post->post_content, 'woocommerce_order_tracking') && !is_wc_endpoint_url() && !$tracking_item_list  ) {

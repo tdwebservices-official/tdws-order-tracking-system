@@ -121,6 +121,8 @@ class Tdws_Order_Tracking_Automation {
 			global $wpdb;	
 			$table_name = $wpdb->base_prefix.'tdws_order_tracking_status';
 			$table2_name = $wpdb->base_prefix.'tdws_order_tracking';
+			$table3_name = $wpdb->base_prefix.'tdws_order_tracking_meta';
+
 
 			tdws_add_column_tracking_statusDB();
 
@@ -205,8 +207,32 @@ class Tdws_Order_Tracking_Automation {
 							if( is_object($tdws_order) ){
 								$total_line_item = $tdws_order->get_items('line_item');
 								if( is_array($total_line_item) ){				
-									$tracking_count_arr = $wpdb->get_row( $wpdb->prepare( "SELECT count(*) as total_tracking FROM $table2_name WHERE tracking_status = 1 AND order_id = %d", $deliveryTrackItem['order_id'] ), ARRAY_A );				
-									$total_tracking = isset($tracking_count_arr['total_tracking']) ? $tracking_count_arr['total_tracking'] : 0;
+									$tracking_count_arr = $wpdb->get_results( 
+										$wpdb->prepare( "SELECT t2.meta_value FROM $table2_name as t1 
+											INNER JOIN $table3_name as t2 ON t1.id = t2.order_tracking_id
+											WHERE t1.tracking_status = 1 AND t1.order_id = %d  AND meta_key = %s", $deliveryTrackItem['order_id'], 'product_ids' ),
+										ARRAY_A 
+									);
+									$all_tdws_product_ids = array();
+									if( is_array( $tracking_count_arr ) ){
+										foreach ( $tracking_count_arr as $t_key => $tk_value ) {
+											if( isset($tk_value['meta_value']) && !empty(trim($tk_value['meta_value'])) ){						
+												$tracking_product_ids = trim($tk_value['meta_value']);
+												if( $tracking_product_ids ){
+													$tracking_product_id_arr = explode( ',', $tracking_product_ids );
+													if( is_array($tracking_product_id_arr) && count($tracking_product_id_arr) > 0 ){
+														$all_tdws_product_ids = array_merge( $all_tdws_product_ids, $tracking_product_id_arr );
+													}
+												}				
+											}
+										}
+									}
+									if( is_array($all_tdws_product_ids) && count($all_tdws_product_ids) > 0 ){
+										$all_tdws_product_ids = array_map( 'trim', $all_tdws_product_ids );
+										$all_tdws_product_ids = array_unique( $all_tdws_product_ids );				
+										$all_tdws_product_ids = array_filter( $all_tdws_product_ids );				
+									}
+									$total_tracking = count($all_tdws_product_ids);
 									if( $total_tracking == count($total_line_item) ){
 										$tdws_order->update_status( 'completed' ); 
 										update_post_meta( $deliveryTrackItem['order_id'], 'completed_status_via_17track_api', 'yes' );
