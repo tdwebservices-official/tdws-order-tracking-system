@@ -745,6 +745,23 @@ a.tdws-coupon-link-item:focus{
     min-width: 80px;
 }
 
+/* Write a review button  */
+.tdws-write-a-review-box .button.tdws-button-review {
+    border: 1px solid #ff6a00;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    line-height: 16px;
+    background: #fff;
+    color: #ff6a00;
+    outline: 0;
+}
+.tdws-write-a-review-box .button.tdws-button-review:hover,.tdws-write-a-review-box .button.tdws-button-review:focus {
+    background: #ff6a00;
+    outline: 0;
+    color: #fff;
+}
+
 @media ( max-width : 1300px ){
     .tdws-tracking-item table th.tdws-tracking-no, .tdws-tracking-item table td.tdws-tracking-no,
     .woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table th.tdws-tracking-no,.woocommerce-js .woocommerce table.shop_table .tdws-tracking-item table td.tdws-tracking-no,

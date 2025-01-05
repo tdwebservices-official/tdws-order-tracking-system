@@ -4,7 +4,7 @@ Donate link: https://tdwebservices.com/
 Tags: comments, spam
 Requires at least: 3.0.1
 Tested up to: 6.7.1
-Stable tag: 1.1.9
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,10 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.2.0 =
+* Product Review Button in My Account Dashboard
+* Multi tracking item not delivered status issue fix
 
 = 1.1.9 =
 * Post Order - Additional Coupons Feature
