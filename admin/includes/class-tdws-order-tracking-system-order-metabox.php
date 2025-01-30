@@ -73,6 +73,10 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 		add_action( "wp_ajax_tdws_auto_completed_reminder_finish_cron", array( $this, "tdws_auto_completed_reminder_finish_cron" ) );
 		add_action( "wp_ajax_nopriv_tdws_auto_completed_reminder_finish_cron", array( $this, "tdws_auto_completed_reminder_finish_cron" ) );
 
+		// reminder failed order mail cron 
+		add_action( "wp_ajax_tdws_failed_order_remind_me_again", array( $this, "tdws_failed_order_remind_me_again" ) );
+		add_action( "wp_ajax_nopriv_tdws_failed_order_remind_me_again", array( $this, "tdws_failed_order_remind_me_again" ) );
+
 		// add some popup in admin footer
 		add_action( 'admin_footer', array( $this, 'tdws_add_extra_popup_in_footer' ) );
 
@@ -711,6 +715,108 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 		}
 
 		update_option( 'tdws_auto_completed_reminder_finish_cron', date('Y-m-d H:i:s') );
+		wp_die('done');
+
+	}
+
+	/**
+	 * Failed Order Remind Me Again
+	 *
+	 * @since   1.2.1
+	 */
+	public function tdws_failed_order_remind_me_again(){
+
+		$tdws_ord_fail_reminder_mail = get_option( 'tdws_ord_fail_reminder_mail' );	
+
+		$default_failed_order_reminder_subject = apply_filters( 'tdws_failed_order_reminder_mail_subject', 'Failed Order Reminder' );
+		$default_failed_order_reminder_heading = apply_filters( 'tdws_failed_order_reminder_mail_email_heading', 'Failed Order Reminder' );
+		$default_failed_order_reminder_email_top = apply_filters( 'tdws_failed_order_reminder_mail_before_item_html', 'Hii [first_name]' );			
+
+		$tdws_failed_order_remind_enable = isset($tdws_ord_fail_reminder_mail['failed_order_remind_enable']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_enable'] : '';
+		$tdws_failed_order_remind_me_minute = isset($tdws_ord_fail_reminder_mail['failed_order_remind_me_minute']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_me_minute'] : 0;
+
+		$tdws_failed_order_remind_after_html = isset($tdws_ord_fail_reminder_mail['failed_order_remind_after_html']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_after_html'] : '';
+		$tdws_failed_order_remind_before_html = isset($tdws_ord_fail_reminder_mail['failed_order_remind_before_html']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_before_html'] : $default_failed_order_reminder_email_top;
+		$tdws_failed_order_remind_heading = isset($tdws_ord_fail_reminder_mail['failed_order_remind_heading']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_heading'] : $default_failed_order_reminder_heading;
+		$tdws_failed_order_remind_subject = isset($tdws_ord_fail_reminder_mail['failed_order_remind_subject']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_subject'] : $default_failed_order_reminder_subject;
+
+		
+		if( $tdws_failed_order_remind_enable != 'Yes' || $tdws_failed_order_remind_me_minute == '' || empty($tdws_failed_order_remind_me_minute) ){
+			return false;
+		}
+		tdws_set_timezone();
+		$tdws_current_date = date( 'Y-m-d' );
+		
+		$args = array(
+			'post_type' => array( 'shop_order','shop_order_placehold' ),
+			'posts_per_page' => -1,  
+			'orderby'         => 'date',
+			'order'           => 'DESC', 
+			'post_status' => 'wc-failed',
+			'date_query'     => array(
+				array(
+					'after'     => $tdws_failed_order_remind_me_minute.' minutes ago', 
+					'inclusive' => true,
+				),
+			),
+			'meta_query'      => array(				
+				array(
+					'key'     => '_tdws_failed_remind_me_set',
+					'compare' => 'NOT EXISTS',   
+				),
+			),
+		);
+
+		$orders = wc_get_orders( $args );
+
+		if( is_array( $orders ) && count($orders) > 0 ){
+			foreach ( $orders as $order_post ) {
+				
+				// Add Order Meta Reminder System 
+				$order_id = $order_post->ID;
+				$order = wc_get_order( $order_id );
+				$email  = $order->get_billing_email();
+				$items = $order->get_items( 'line_item' );
+
+				$tdws_failed_order_remind_subject = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_subject );
+				$tdws_failed_order_remind_heading = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_heading );
+				$tdws_failed_order_remind_before_html = str_replace( '[first_name]', $order->get_billing_first_name(), $tdws_failed_order_remind_before_html );
+				$tdws_failed_order_remind_before_html = str_replace( '[last_name]', $order->get_billing_last_name(), $tdws_failed_order_remind_before_html );
+				$tdws_failed_order_remind_before_html = str_replace( '[email]', $order->get_billing_email(), $tdws_failed_order_remind_before_html );
+				$tdws_failed_order_remind_before_html = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_before_html );
+
+				$tdws_failed_order_remind_after_html = str_replace( '[first_name]', $order->get_billing_first_name(), $tdws_failed_order_remind_after_html );
+				$tdws_failed_order_remind_after_html = str_replace( '[last_name]', $order->get_billing_last_name(), $tdws_failed_order_remind_after_html );
+				$tdws_failed_order_remind_after_html = str_replace( '[email]', $order->get_billing_email(), $tdws_failed_order_remind_after_html );
+				$tdws_failed_order_remind_after_html = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_after_html );
+
+				$email_heading  = $tdws_failed_order_remind_heading;
+				$show_sku =  apply_filters( 'tdws_order_tracking_product_mail_show_sku', true );
+				$show_image =  apply_filters( 'tdws_order_tracking_product_mail_show_img', true );
+				$image_size =  apply_filters( 'tdws_order_tracking_product_mail_image_size', array( 64, 64 ) );
+				$css = $html = '';
+				ob_start();
+				include plugin_dir_path(dirname( __DIR__ )).'admin/templates/emails/tdws-email-normal-template.php';
+				$html = ob_get_clean();
+				ob_start();
+				wc_get_template( 'emails/email-styles.php' );
+				$css = ob_get_clean();
+				$content = '<style type="text/css">' . $css . '</style>' . $html;
+				$mailFlag = tdws_custom_send_mail( $email, $tdws_failed_order_remind_subject, $content, array() );
+
+				if( $mailFlag ){
+					update_post_meta( $order_id, 'tdws_failed_remind_me_mail', 'yes' );
+					twds_update_order_meta( $order_id, 'tdws_failed_remind_me_mail', 'yes' );
+				}else{
+					update_post_meta( $order_id, 'tdws_failed_remind_me_mail', 'no' );
+					twds_update_order_meta( $order_id, 'tdws_failed_remind_me_mail', 'no' );
+				}
+				update_post_meta( $order_id, '_tdws_failed_remind_me_set', 'yes'  );
+				twds_update_order_meta( $order_id, '_tdws_failed_remind_me_set', 'yes' );
+			}
+		}
+
+		update_option( 'tdws_failed_remind_me_mail_set_cron', date('Y-m-d H:i:s') );
 		wp_die('done');
 
 	}

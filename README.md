@@ -15,6 +15,23 @@ This plugin provides a comprehensive order tracking system for your WordPress st
 * **Seamless Integration:** Integrates with your existing WordPress order management system.
 * **Version Control:** Utilizes a dedicated GitHub repository for version control, collaboration, and issue tracking.
 * **Automatic Updates:** Receive updates seamlessly through the WordPress plugin update mechanism.
+* **Coupon Management:**
+    * **Coupon Categories or Interests:**
+        * Organize coupons based on customer preferences.
+    * **Brand Information:**
+        * Manage brand details, including Brand Name and Logo.
+    * **Coupons:**
+        * Define Coupon Name, Coupon Code, Offer Highlights, Link, and Expiry/Validity Date.
+    * **Display Locations:**
+        * Order Confirmation Page
+        * My Dashboard (Coupons displayed based on selected interests; if none, all coupons are shown)
+    * **Display Conditions:**
+        * Coupons with expired or invalid validity dates will not be displayed.
+* **Order Auto-Completion for Failed or Untracked Delivery:** 
+    * Set a specific number of days post-order date or choose a status for auto-completion.
+    * Configure a reminder email before the order is set to be completed.
+    * Customizable email body for notifying customers.
+    
 
 **Future Enhancements (Not included in current version):**
 
