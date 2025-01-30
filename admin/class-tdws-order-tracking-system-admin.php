@@ -224,7 +224,9 @@ class Tdws_Order_Tracking_System_Admin {
 		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-generalData' ) ) {			
 			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_opt' );
 			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_track_mail' );	
-			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_reminder_mail' );								
+			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_reminder_mail' );	
+			register_setting( 'tdws-order-tracking-setting', 'tdws_ord_fail_reminder_mail' );	
+
 		}
 
 		if ( isset( $_POST['tdwsformType'] ) && wp_verify_nonce( $_POST['tdwsformType'], $this->plugin_name.'-apiData' ) ) {			
@@ -264,7 +266,8 @@ class Tdws_Order_Tracking_System_Admin {
 		$add_order_tags = tdws_get_order_tages();
 		$tdws_ord_track_opt = get_option( 'tdws_ord_track_opt' );		
 		$tdws_ord_track_mail = get_option( 'tdws_ord_track_mail' );		
-		$tdws_ord_reminder_mail = get_option( 'tdws_ord_reminder_mail' );		
+		$tdws_ord_reminder_mail = get_option( 'tdws_ord_reminder_mail' );
+		$tdws_ord_fail_reminder_mail = get_option( 'tdws_ord_fail_reminder_mail' );		
 		$default_tag_name = apply_filters( 'set_default_tdws_tag_name', 'New' );
 		$default_track_subject = apply_filters( 'tdws_order_tracking_mail_subject', 'Order Tracking' );
 		$default_track_heading = apply_filters( 'tdws_order_tracking_mail_email_heading', 'Order Tracking' );
@@ -274,6 +277,10 @@ class Tdws_Order_Tracking_System_Admin {
 		$default_reminder_subject = apply_filters( 'tdws_order_reminder_mail_subject', 'Order Reminder' );
 		$default_reminder_heading = apply_filters( 'tdws_order_reminder_mail_email_heading', 'Order Reminder' );
 		$default_reminder_email_top = apply_filters( 'tdws_order_reminder_mail_before_item_html', 'Hii [first_name]' );
+
+		$default_failed_order_reminder_subject = apply_filters( 'tdws_failed_order_reminder_mail_subject', 'Failed Order Reminder' );
+		$default_failed_order_reminder_heading = apply_filters( 'tdws_failed_order_reminder_mail_email_heading', 'Failed Order Reminder' );
+		$default_failed_order_reminder_email_top = apply_filters( 'tdws_failed_order_reminder_mail_before_item_html', 'Hii [first_name]' );
 
 		$set_default_order_tag = isset($tdws_ord_track_opt['set_default_order_tag']) ? $tdws_ord_track_opt['set_default_order_tag'] : $default_tag_name;
 		$order_tag_colour = isset($tdws_ord_track_opt['order_tag_colour']) ? $tdws_ord_track_opt['order_tag_colour'] : '';
@@ -294,12 +301,21 @@ class Tdws_Order_Tracking_System_Admin {
 		if( empty($tdws_auto_completed_status) ){
 			$tdws_auto_completed_status = array();
 		}
+
+		$tdws_failed_order_remind_enable = isset($tdws_ord_fail_reminder_mail['failed_order_remind_enable']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_enable'] : '';
+		$tdws_failed_order_remind_me_minute = isset($tdws_ord_fail_reminder_mail['failed_order_remind_me_minute']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_me_minute'] : 0;
+
+		$tdws_failed_order_remind_after_html = isset($tdws_ord_fail_reminder_mail['failed_order_remind_after_html']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_after_html'] : '';
+		$tdws_failed_order_remind_before_html = isset($tdws_ord_fail_reminder_mail['failed_order_remind_before_html']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_before_html'] : $default_failed_order_reminder_email_top;
+		$tdws_failed_order_remind_heading = isset($tdws_ord_fail_reminder_mail['failed_order_remind_heading']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_heading'] : $default_failed_order_reminder_heading;
+		$tdws_failed_order_remind_subject = isset($tdws_ord_fail_reminder_mail['failed_order_remind_subject']) ? $tdws_ord_fail_reminder_mail['failed_order_remind_subject'] : $default_failed_order_reminder_subject;
 		
 		$tdws_date_format = (get_option('date_format')) ? get_option('date_format') : 'd/m/Y';			
 		$tdws_time_format = (get_option('time_format')) ? get_option('time_format') : 'H:i:s';		
 
 		$tdws_auto_completed_reminder_mail_set_cron = get_option( 'tdws_auto_completed_reminder_mail_set_cron' );
 		$tdws_auto_completed_reminder_finish_cron = get_option( 'tdws_auto_completed_reminder_finish_cron' );
+		$tdws_failed_remind_me_mail_set_cron = get_option( 'tdws_failed_remind_me_mail_set_cron' );
 
 		?>
 		<div class="wrap tdws-form-wrap">
@@ -486,6 +502,76 @@ class Tdws_Order_Tracking_System_Admin {
 									if( $tdws_auto_completed_reminder_finish_cron ){
 										?>
 										<h3 class="tdws-cron-info"><?php esc_html_e( 'Last Cron Run Date & Time :', 'tdws-order-tracking-system' ); ?> <?php echo esc_html( date( $tdws_date_format.' '.$tdws_time_format, strtotime( $tdws_auto_completed_reminder_finish_cron ) ) ); ?></h3>
+										
+										<?php	
+									}
+									?>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Enable Failed Order Reminder System', 'tdws-order-tracking-system' ); ?>
+								</th>
+								<td>
+									<label class="tdws-main-label">
+										<input type="checkbox" name="tdws_ord_fail_reminder_mail[failed_order_remind_enable]" <?php checked( $tdws_failed_order_remind_enable, 'Yes' ); ?> class="tdws_failed_order_remind_enable" value="Yes" />
+										<span class="tdws-slider tdws-round"></span>
+									</label>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Failed Order Remind Me Minute', 'tdws-order-tracking-system' ); ?>
+								</th>
+								<td><input type="number" placeholder="<?php esc_html_e( 'Please Enter Failed Order Remind Me Minute', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_fail_reminder_mail[failed_order_remind_me_minute]" value="<?php echo esc_attr( $tdws_failed_order_remind_me_minute ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Failed Order Reminder Subject', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass order id in email heading using [order_id]' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Failed Order Reminder Subject', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_fail_reminder_mail[failed_order_remind_subject]" value="<?php echo esc_attr( $tdws_failed_order_remind_subject ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Failed Order Reminder Email Heading', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass order id in email heading using [order_id]' ); ?> )</h6>
+								</th>
+								<td><input type="text" placeholder="<?php esc_html_e( 'Please Enter Failed Order Reminder Email Heading', 'tdws-order-tracking-system' ); ?>" name="tdws_ord_fail_reminder_mail[failed_order_remind_heading]" value="<?php echo esc_attr( $tdws_failed_order_remind_heading ); ?>" /></td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Failed Order Reminder Before Items HTML', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<?php 																
+									wp_editor( $tdws_failed_order_remind_before_html, 'failed_order_remind_before_html', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_fail_reminder_mail[failed_order_remind_before_html]', 'wpautop' => false ) );
+									?>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row">
+									<?php esc_html_e( 'Failed Order Reminder After Items HTML', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'You can pass in your body to show [order_id], [first_name], [last_name], [email]', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<?php 																
+									wp_editor( $tdws_failed_order_remind_after_html, 'failed_order_remind_after_html', array( 'media_buttons' => false, 'textarea_name' => 'tdws_ord_fail_reminder_mail[failed_order_remind_after_html]', 'wpautop' => false ) );
+									?>
+								</td>
+							</tr>
+							<tr valign="top" class="tdws-subject-tr" >
+								<th scope="row">
+									<?php esc_html_e( 'Use This Cron Failed Order Remind Mail Cron', 'tdws-order-tracking-system' ); ?>
+									<h6>( <?php esc_html_e( 'Please Set Use This Cron Failed Order Remind Mail Cron, Please use Failed Order Remind Me Minute field for cron', 'tdws-order-tracking-system' ); ?> )</h6>
+								</th>
+								<td>
+									<input type="text" class="tdws-full-width" readonly value="<?php echo site_url('wp-admin/admin-ajax.php?action=tdws_failed_order_remind_me_again'); ?>" />
+									<?php 
+									if( $tdws_failed_remind_me_mail_set_cron ){
+										?>
+										<h3 class="tdws-cron-info"><?php esc_html_e( 'Last Cron Run Date & Time :', 'tdws-order-tracking-system' ); ?> <?php echo esc_html( date( $tdws_date_format.' '.$tdws_time_format, strtotime( $tdws_failed_remind_me_mail_set_cron ) ) ); ?></h3>
 										
 										<?php	
 									}
