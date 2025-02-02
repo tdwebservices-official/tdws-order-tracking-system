@@ -780,15 +780,15 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 
 				$tdws_failed_order_remind_subject = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_subject );
 				$tdws_failed_order_remind_heading = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_heading );
-				$tdws_failed_order_remind_before_html = str_replace( '[first_name]', $order->get_billing_first_name(), $tdws_failed_order_remind_before_html );
-				$tdws_failed_order_remind_before_html = str_replace( '[last_name]', $order->get_billing_last_name(), $tdws_failed_order_remind_before_html );
-				$tdws_failed_order_remind_before_html = str_replace( '[email]', $order->get_billing_email(), $tdws_failed_order_remind_before_html );
-				$tdws_failed_order_remind_before_html = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_before_html );
+				$auto_completed_reminder_before_html = str_replace( '[first_name]', $order->get_billing_first_name(), $tdws_failed_order_remind_before_html );
+				$auto_completed_reminder_before_html = str_replace( '[last_name]', $order->get_billing_last_name(), $auto_completed_reminder_before_html );
+				$auto_completed_reminder_before_html = str_replace( '[email]', $order->get_billing_email(), $auto_completed_reminder_before_html );
+				$auto_completed_reminder_before_html = str_replace( '[order_id]', $order_id, $auto_completed_reminder_before_html );
 
-				$tdws_failed_order_remind_after_html = str_replace( '[first_name]', $order->get_billing_first_name(), $tdws_failed_order_remind_after_html );
-				$tdws_failed_order_remind_after_html = str_replace( '[last_name]', $order->get_billing_last_name(), $tdws_failed_order_remind_after_html );
-				$tdws_failed_order_remind_after_html = str_replace( '[email]', $order->get_billing_email(), $tdws_failed_order_remind_after_html );
-				$tdws_failed_order_remind_after_html = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_after_html );
+				$auto_completed_reminder_after_html = str_replace( '[first_name]', $order->get_billing_first_name(), $tdws_failed_order_remind_after_html );
+				$auto_completed_reminder_after_html = str_replace( '[last_name]', $order->get_billing_last_name(), $auto_completed_reminder_after_html );
+				$auto_completed_reminder_after_html = str_replace( '[email]', $order->get_billing_email(), $auto_completed_reminder_after_html );
+				$auto_completed_reminder_after_html = str_replace( '[order_id]', $order_id, $auto_completed_reminder_after_html );
 
 				$email_heading  = $tdws_failed_order_remind_heading;
 				$show_sku =  apply_filters( 'tdws_order_tracking_product_mail_show_sku', true );
