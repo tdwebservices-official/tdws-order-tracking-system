@@ -188,7 +188,9 @@ class Tdws_Order_Tracking_Automation {
 						}
 					}
 				}		
-			}	
+			}
+
+			$tdws_order_completed_ids = array();	
 
 			if( is_array($trackingIDs) && count($trackingIDs) > 0 ){
 				$placeholders = implode(',', array_fill(0, count($trackingIDs), '%d'));
@@ -233,8 +235,9 @@ class Tdws_Order_Tracking_Automation {
 										$all_tdws_product_ids = array_filter( $all_tdws_product_ids );				
 									}
 									$total_tracking = count($all_tdws_product_ids);
-									if( $total_tracking == count($total_line_item) ){
+									if( $total_tracking == count($total_line_item) && !in_array( $deliveryTrackItem['order_id'], $tdws_order_completed_ids ) ){
 										$tdws_order->update_status( 'completed' ); 
+										$tdws_order_completed_ids[] = $deliveryTrackItem['order_id'];
 										update_post_meta( $deliveryTrackItem['order_id'], 'completed_status_via_17track_api', 'yes' );
 										twds_update_order_meta( $deliveryTrackItem['order_id'], 'completed_status_via_17track_api', 'yes' );
 									}
