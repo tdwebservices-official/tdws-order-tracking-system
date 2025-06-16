@@ -4,7 +4,7 @@ Donate link: https://tdwebservices.com/
 Tags: comments, spam
 Requires at least: 3.0.1
 Tested up to: 6.7.1
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.2.4 =
+* Fixed the issue of multiple emails being sent for auto-completed orders and resolved the issue where some orders were not being marked as complete
 
 = 1.2.3 =
 * Auto Complete Orders Subject and Body Text Issue
