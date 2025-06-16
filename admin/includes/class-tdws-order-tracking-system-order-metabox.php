@@ -77,6 +77,9 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 		add_action( "wp_ajax_tdws_failed_order_remind_me_again", array( $this, "tdws_failed_order_remind_me_again" ) );
 		add_action( "wp_ajax_nopriv_tdws_failed_order_remind_me_again", array( $this, "tdws_failed_order_remind_me_again" ) );
 
+		// change order meta query
+		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', array( $this, 'tdws_custom_order_query_set' ), 99, 2 );
+
 		// add some popup in admin footer
 		add_action( 'admin_footer', array( $this, 'tdws_add_extra_popup_in_footer' ) );
 
@@ -557,6 +560,37 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 	}
 
 	/**
+	 * Fix order issue query function
+	 *
+	 * @since    1.2.4
+	 */
+	public function tdws_custom_order_query_set( $query, $query_vars ){
+	    if ( isset( $query_vars['_tdws_reminder_set_check'] ) && ! empty( $query_vars['_tdws_reminder_set_check'] ) ) {
+            $query['meta_query'][] = array(
+                'key' => '_tdws_reminder_set',
+                'compare' => 'NOT EXISTS',
+            );
+        }
+        
+        if ( isset( $query_vars['_tdws_reminder_set_finish'] ) && ! empty( $query_vars['_tdws_reminder_set_finish'] ) ) {
+            $query['meta_query'][] = array(
+                'key' => '_tdws_reminder_set',
+                'value' => 'yes',
+                'compare' => '=',
+            );
+        }
+        
+        if ( isset( $query_vars['_tdws_failed_remind_me_set_check'] ) && ! empty( $query_vars['_tdws_failed_remind_me_set_check'] ) ) {
+            $query['meta_query'][] = array(
+                'key' => '_tdws_failed_remind_me_set',
+                'compare' => 'NOT EXISTS',
+            );
+        }
+        return $query;
+	    
+	}
+
+	/**
 	 * Auto Completed Reminder Set Mail Cron
 	 *
 	 * @since    1.9.0
@@ -595,12 +629,7 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 			'order'           => 'DESC', 
 			'post_status' => $tdws_auto_completed_status,
 			'date_created' => '<='. $tdws_reminder_date,
-			'meta_query'      => array(				
-				array(
-					'key'     => '_tdws_reminder_set',
-					'compare' => 'NOT EXISTS',   
-				),
-			),
+			'_tdws_reminder_set_check' => 'yes'
 		);
 
 		$orders = wc_get_orders( $args );
@@ -613,6 +642,12 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 				$order = wc_get_order( $order_id );
 				$email  = $order->get_billing_email();
 				$items = $order->get_items( 'line_item' );
+
+				$_tdws_reminder_set = get_post_meta( $order_id, '_tdws_reminder_set', true  );
+				
+				if( $_tdws_reminder_set == 'yes' ){
+				    continue;
+				}
 
 				$auto_completed_reminder_subject = str_replace( '[order_id]', $order_id, $tdws_completed_reminder_subject );
 				$auto_completed_reminder_heading = str_replace( '[order_id]', $order_id, $tdws_completed_reminder_subject );
@@ -687,13 +722,7 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 			'order'           => 'DESC', 
 			'post_status' => $tdws_auto_completed_status,
 			'date_created' => '<='.$tdws_reminder_date,
-			'meta_query'      => array(				
-				array(
-					'key'     => '_tdws_reminder_set',
-					'compare' => '=',
-					'value' => 'yes'   
-				),
-			),
+			'_tdws_reminder_set_finish' => 'yes'
 		);
 
 		global $wpdb;	
@@ -759,12 +788,7 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 					'inclusive' => true,
 				),
 			),
-			'meta_query'      => array(				
-				array(
-					'key'     => '_tdws_failed_remind_me_set',
-					'compare' => 'NOT EXISTS',   
-				),
-			),
+			'_tdws_failed_remind_me_set_check' => 'yes',
 		);
 
 		$orders = wc_get_orders( $args );
@@ -777,6 +801,12 @@ class Tdws_Order_Tracking_System_Order_MetaBox {
 				$order = wc_get_order( $order_id );
 				$email  = $order->get_billing_email();
 				$items = $order->get_items( 'line_item' );
+
+				$_tdws_failed_remind_me_set = get_post_meta( $order_id, '_tdws_failed_remind_me_set', true  );
+				
+				if( $_tdws_failed_remind_me_set == 'yes' ){
+				    continue;
+				}
 
 				$auto_completed_order_remind_subject = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_subject );
 				$auto_completed_order_remind_heading = str_replace( '[order_id]', $order_id, $tdws_failed_order_remind_heading );
